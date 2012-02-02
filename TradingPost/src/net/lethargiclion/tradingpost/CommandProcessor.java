@@ -2,6 +2,7 @@ package net.lethargiclion.tradingpost;
 
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -14,6 +15,10 @@ public class CommandProcessor {
 	
 	Logger log;
 	
+	/**
+	 * Constructor.
+	 * @param log The logger to use for printing console messages.
+	 */
 	public CommandProcessor(Logger log) {
 		this.log = log;
 	}
@@ -26,6 +31,7 @@ public class CommandProcessor {
 	public enum TPCommand {
 		help,
 		commands
+		//TODO: Add full range of commands
 	}
 	
 	/**
@@ -54,36 +60,91 @@ public class CommandProcessor {
 	 */
 	public boolean runCommand(CommandSender sender, TPCommand cmd, String[] args) {
 		
+		// Remove first argument (which is the command name itself)
 		String[] cmdargs = java.util.Arrays.copyOfRange(args, 1, args.length);
 		
 		if(sender.getClass() != Player.class) {
+			// Then we were probably called via console or Rcon
 			sender.sendMessage("You can only run TradingPost commands as a player.");
 			return false;
 		}
 		
+		// Typecast the CommandSender
 		Player p = (Player)sender;
 		
+		// Execute the requested command
 		switch(cmd) {
 		case help:
 			return cmdHelp(p, cmdargs);
+		case commands:
+			return cmdCommands(p);
 		default:
+			p.sendMessage("Sorry, this command has not yet been implemented.");
+			log.warning(String.format("%s tried to run unimplemented command %s!", p.getName(), cmd.name()));
 			return false;
 		}
 		
 	}
 	
+	/**
+	 * Provides a list of available TradingPost commands.
+	 * @param p The player running the command.
+	 * @return True
+	 */
+	private boolean cmdCommands(Player p) {
+		p.sendMessage("Available TradingPost commands are:");
+		// Compile and return command list directly from our enum
+		p.sendMessage(StringUtils.join(TPCommand.values(), ", "));
+		return true;
+	}
+
+	/**
+	 * Provides help on a 
+	 * @param p
+	 * @param args
+	 * @return
+	 */
 	private boolean cmdHelp(Player p, String[] args) {
+		// No command supplied by the user?
 		if(args.length == 0) {
-			p.sendMessage("For help on a specific command, type /tp help command");
+			p.sendMessage("For help on a specific command, type /tr help <command>");
+			p.sendMessage("To get a list of commands, type /tr commands");
 			return true;
 		}
+		
+		// Find out which command they want help with
+		TPCommand cmd;
 		try {
-			getCommand(args[0]);
+			cmd = getCommand(args[0]);
 		} catch (CommandNotFoundException e) {
+			// We don't know that command
 			p.sendMessage("Sorry, that TradingPost command doesn't exist. Try /tr commands");
 			return true;
 		}
-		return false;
+		
+		// Prepare to give usage information for the commands
+		String usage = "", info = "";
+		
+		// Provide the correct messages for the requested command
+		switch(cmd) {
+		case help:
+			usage = "help <command>";
+			info = "Provides information on how to use TradingPost commands.";
+			break;
+		case commands:
+			usage = "commands";
+			info = "Shows a list of available TradingPost commands.";
+			break;
+		default:
+			usage = cmd.name();
+			info = "Sorry, there is no help available for this command.";
+		}
+		
+		// Send usage message
+		p.sendMessage("Usage: /tr " + usage);
+		p.sendMessage(info);
+		
+		return true;
 	}
 
 }
