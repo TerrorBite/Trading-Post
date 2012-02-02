@@ -5,11 +5,16 @@ import java.util.logging.Logger;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class TradingPostCommandProcessor {
+/**
+ * Processes user commands for TradingPost.
+ * @author TerrorBite
+ *
+ */
+public class CommandProcessor {
 	
 	Logger log;
 	
-	public TradingPostCommandProcessor(Logger log) {
+	public CommandProcessor(Logger log) {
 		this.log = log;
 	}
 	

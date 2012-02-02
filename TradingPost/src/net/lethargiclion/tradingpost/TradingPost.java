@@ -5,7 +5,7 @@ package net.lethargiclion.tradingpost;
 
 import java.util.logging.Logger;
 
-import net.lethargiclion.tradingpost.TradingPostCommandProcessor.TPCommand;
+import net.lethargiclion.tradingpost.CommandProcessor.TPCommand;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -20,7 +20,7 @@ public class TradingPost extends JavaPlugin {
 	
 	Logger log = Logger.getLogger("Minecraft");
 	
-	TradingPostCommandProcessor processor = new TradingPostCommandProcessor(log);
+	CommandProcessor processor = new CommandProcessor(log);
 	
 	public void onEnable() {
 		log.info("TradingPost has been enabled.");
