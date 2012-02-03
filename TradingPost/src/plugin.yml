@@ -1,6 +1,6 @@
 name: TradingPost
 main: net.lethargiclion.tradingpost.TradingPost
-version: 0.1a
+version: 0.1a1
 commands:
     tr:
         description: Allows you to use Trading Post features.

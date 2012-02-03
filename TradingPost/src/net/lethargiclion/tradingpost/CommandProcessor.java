@@ -63,9 +63,10 @@ public class CommandProcessor {
 		// Remove first argument (which is the command name itself)
 		String[] cmdargs = java.util.Arrays.copyOfRange(args, 1, args.length);
 		
-		if(sender.getClass() != Player.class) {
+		if(!(sender instanceof Player)) {
 			// Then we were probably called via console or Rcon
 			sender.sendMessage("You can only run TradingPost commands as a player.");
+			log.warning("Attempted to use TradingPost command from console.");
 			return false;
 		}
 		
