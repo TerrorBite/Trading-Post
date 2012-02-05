@@ -83,8 +83,8 @@ public class ItemBid implements ConfigurationSerializable {
 		serial.put("timestamp", timestamp);
 		serial.put("status", status.name());
 		
+		// Serialize items
 		List<Map<String, Object>> itemstacks = new ArrayList<Map<String,Object>>();
-
 		Iterator<ItemStack> i = items.iterator();
 		while(i.hasNext()) {
 			itemstacks.add(i.next().serialize());
