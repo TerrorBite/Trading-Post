@@ -31,7 +31,7 @@ public class ItemBid implements ConfigurationSerializable {
 	 * @param items The items that they are bidding.
 	 */
 	public ItemBid(OfflinePlayer owner, List<ItemStack> items) {
-		this(owner, items, TradeManager.getManager().getNextId(), new Date(), ItemBidStatus.open);
+		this(owner, items, TradingPost.getManager().getNextId(), new Date(), ItemBidStatus.open);
 	}
 	
 	/**

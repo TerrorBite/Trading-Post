@@ -24,6 +24,9 @@ public class TradingPost extends JavaPlugin {
 	CommandProcessor processor = new CommandProcessor(log);
 	
 	public void onEnable() {
+		// Start out by initializing the TradeManager.
+		getManager().setPlugin(this);
+		
 		log.info("[TradingPost] Successfully enabled.");
 	}
 	 
@@ -65,6 +68,16 @@ public class TradingPost extends JavaPlugin {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Returns the current instance of the {@link TradeManager}.
+	 * This ensures that classes like {@link ItemBid} can always access the current TradeManager, since when they
+	 * are being deserialized by Bukkit they cannot be passed a reference to it via their constructor.
+	 * @return The current TradeManager instance.
+	 */
+	public static TradeManager getManager() {
+		return TradeManager.INSTANCE;
 	}
 
 }
