@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -16,12 +15,9 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public class ItemBid implements ConfigurationSerializable {
+public class ItemBid extends TradeBase {
 	
-	private int id; // Bid ID
-	private OfflinePlayer owner; // User who made the bid
-	private List<ItemStack> items; // Items they were bidding with
-	private Date timestamp; // Time they made the bid
+	private Date timestamp; // Time this bid was made
 	private ItemBidStatus status; // Current status of this bid
 	
 	/**
@@ -90,7 +86,7 @@ public class ItemBid implements ConfigurationSerializable {
 			itemstacks.add(i.next().serialize());
 		}
 		serial.put("items", itemstacks);
-		return null;
+		return serial;
 	}
 	
 }
