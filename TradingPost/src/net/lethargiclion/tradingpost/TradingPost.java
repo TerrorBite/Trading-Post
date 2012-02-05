@@ -10,6 +10,7 @@ import net.lethargiclion.tradingpost.CommandProcessor.TPCommand;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -18,6 +19,10 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  */
 public class TradingPost extends JavaPlugin {
+	
+	static {
+		ConfigurationSerialization.registerClass(TradeStorage.class);
+	}
 	
 	Logger log = Logger.getLogger("Minecraft");
 	
@@ -31,6 +36,7 @@ public class TradingPost extends JavaPlugin {
 	}
 	 
 	public void onDisable() {
+		getManager().serialize();
 		log.info("[TradingPost] Successfully disabled. Have a nice day!.");
 	}
 	

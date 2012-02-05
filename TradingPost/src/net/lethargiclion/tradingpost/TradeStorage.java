@@ -1,14 +1,13 @@
 package net.lethargiclion.tradingpost;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 /**
  * An automatically serializable class designed to store TradingPost data.
@@ -16,28 +15,31 @@ import org.bukkit.configuration.serialization.ConfigurationSerialization;
  *
  */
 public class TradeStorage implements ConfigurationSerializable {
-
-	static {
-		ConfigurationSerialization.registerClass(TradeStorage.class);
-	}
 	
 	public int currentId;
-	public List<TradeBase> trades;
+	public Collection<TradeBase> trades;
 	
 	@SuppressWarnings("unchecked")
 	public TradeStorage(Map<String, Object> serialData) {
-		currentId = (Integer)serialData.get("currentId");
+		TradingPost.getManager().getPlugin().log.info(serialData.keySet().toString());
+		currentId = serialData.containsKey("currentId")?
+				(Integer)serialData.get("currentId"):0;
 		
 		trades = new ArrayList<TradeBase>();
 		
-		List<Map<String, Object>> tradeMap;
+		Collection<Map<String, Object>> tradeMap;
 		try {
-			tradeMap = (List<Map<String, Object>>)serialData.get("trades");
+			tradeMap = (Collection<Map<String, Object>>)serialData.get("trades");
 		} catch(ClassCastException ex) {
 			tradeMap = new ArrayList<Map<String, Object>>();
 			TradingPost.getManager().getPlugin().log.log(Level.SEVERE,
 					"Unable to deserialize: Invalid data.", ex);
+		} catch(NullPointerException ex) {
+			tradeMap = new ArrayList<Map<String, Object>>();
+			TradingPost.getManager().getPlugin().log.log(Level.SEVERE,
+					"Unable to deserialize: Null pointer.", ex);
 		}
+		if(tradeMap == null) tradeMap = new ArrayList<Map<String, Object>>();
 		Iterator<Map<String, Object>> i = tradeMap.iterator();
 		
 		while(i.hasNext()) {
@@ -45,7 +47,7 @@ public class TradeStorage implements ConfigurationSerializable {
 		}
 	}
 	
-	public void setValues(int currentId, List<TradeBase> trades) {
+	public void setValues(int currentId, Collection<TradeBase> trades) {
 		this.currentId = currentId;
 		this.trades = trades;
 	}

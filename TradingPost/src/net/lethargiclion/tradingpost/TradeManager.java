@@ -3,7 +3,9 @@ package net.lethargiclion.tradingpost;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,7 +29,7 @@ public enum TradeManager {
 	/**
 	 * Holds all the trades, bids, etc.
 	 */
-	List<TradeBase> trades;
+	Map<Integer, TradeBase> trades;
 	
 	/**
 	 * Holds the last-used ID value, to enable auto-incrementing ID values.
@@ -50,17 +52,25 @@ public enum TradeManager {
 	public void initialize(TradingPost plugin) {
 		this.plugin = plugin;
 		deserialize();
-		
 	}
 	
 	public void deserialize() {
 		if(tradeStorageConfig == null) loadStorage();
+		//storage = new TradeStorage(tradeStorageConfig.getValues(true));
 		storage = (TradeStorage)tradeStorageConfig.get("storage");
+		
+		trades = new LinkedHashMap<Integer, TradeBase>();
+		Iterator<TradeBase> i = storage.trades.iterator();
+		while(i.hasNext()) {
+			TradeBase t = i.next();
+			trades.put(t.getId(), t);
+		}
+		this.currentId = storage.currentId;
 	}
 	
 	public void serialize() {
-		if(storage == null) throw new IllegalStateException();
-		storage.setValues(currentId, trades);
+		if(storage == null) throw new IllegalStateException("Can't serialize if the storage object is null!");
+		storage.setValues(currentId, trades.values());
 		if(tradeStorageConfig == null) loadStorage();
 		tradeStorageConfig.set("storage", storage);
 		saveStorage();
