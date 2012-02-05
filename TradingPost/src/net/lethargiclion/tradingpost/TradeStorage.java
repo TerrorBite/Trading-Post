@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 /**
  * An automatically serializable class designed to store TradingPost data.
@@ -16,34 +18,48 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
  */
 public class TradeStorage implements ConfigurationSerializable {
 	
+	static int instances = 0;
+	int myinstance = 0;
+	
 	public int currentId;
 	public Collection<TradeBase> trades;
 	
+	public TradeStorage() {
+		trades = new ArrayList<TradeBase>();
+		currentId = 0;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public TradeStorage(Map<String, Object> serialData) {
-		TradingPost.getManager().getPlugin().log.info(serialData.keySet().toString());
+		myinstance = ++instances;
+		TradingPost.getManager().getPlugin().log.info(String.format("TradeStorage instance %d", myinstance));
 		currentId = serialData.containsKey("currentId")?
 				(Integer)serialData.get("currentId"):0;
 		
+		TradingPost.getManager().getPlugin().log.info(String.format("Instance %d got currentId=%d", myinstance, currentId));
+
+		
 		trades = new ArrayList<TradeBase>();
 		
-		Collection<Map<String, Object>> tradeMap;
+		Collection<Object> newTrades = null;
 		try {
-			tradeMap = (Collection<Map<String, Object>>)serialData.get("trades");
+			newTrades = (Collection<Object>)serialData.get("trades");
 		} catch(ClassCastException ex) {
-			tradeMap = new ArrayList<Map<String, Object>>();
 			TradingPost.getManager().getPlugin().log.log(Level.SEVERE,
 					"Unable to deserialize: Invalid data.", ex);
-		} catch(NullPointerException ex) {
-			tradeMap = new ArrayList<Map<String, Object>>();
-			TradingPost.getManager().getPlugin().log.log(Level.SEVERE,
-					"Unable to deserialize: Null pointer.", ex);
 		}
-		if(tradeMap == null) tradeMap = new ArrayList<Map<String, Object>>();
-		Iterator<Map<String, Object>> i = tradeMap.iterator();
+		if(newTrades == null) newTrades = new ArrayList<Object>();
+		TradingPost.getManager().getPlugin().log.info(String.format("Instance %d has %d new trades", myinstance, newTrades.size()));
+		Iterator<Object> i = newTrades.iterator();
 		
 		while(i.hasNext()) {
-			trades.add(TradeBase.deserialize(serialData));
+			Object next = i.next();
+			//trades.add(TradeBase.deserialize(serialData));
+			if(next instanceof TradeBase) {
+				TradingPost.getManager().getPlugin().log.warning("Got an already deserialized object! Cool!");
+				trades.add((TradeBase)next);
+			}
+			else trades.add((TradeBase) ConfigurationSerialization.deserializeObject((Map<String, Object>)next));
 		}
 	}
 	
@@ -58,7 +74,18 @@ public class TradeStorage implements ConfigurationSerializable {
 		Map<String, Object> serial = new LinkedHashMap<String, Object>();
 		
 		serial.put("currentId", currentId);
-		serial.put("trades", trades);
+		
+		List<Map<String, Object>> tradeList = new ArrayList<Map<String, Object>>();
+		Iterator<TradeBase> i = trades.iterator();
+		while(i.hasNext()) {
+			TradeBase t = i.next();
+			Map<String, Object> trade = new LinkedHashMap<String, Object>();
+			trade.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY,
+					t.getClass().getName());
+			trade.putAll(t.serialize());
+			tradeList.add(trade);
+		}
+		serial.put("trades", tradeList);
 		
 		return serial;
 	}

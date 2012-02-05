@@ -22,9 +22,9 @@ public enum TradeManager {
 	/**
 	 * Holds the parent TradingPost instance.
 	 */
-	private TradingPost plugin;
+	private TradingPost plugin = null;
 	
-	private TradeStorage storage;
+	private TradeStorage storage = null;
 	
 	/**
 	 * Holds all the trades, bids, etc.
@@ -56,32 +56,56 @@ public enum TradeManager {
 	
 	public void deserialize() {
 		if(tradeStorageConfig == null) loadStorage();
-		//storage = new TradeStorage(tradeStorageConfig.getValues(true));
-		storage = (TradeStorage)tradeStorageConfig.get("storage");
 		
+		//plugin.log.info("[TradingPost] TradeManager: Storage config loaded successfully.");
+		
+		//storage = new TradeStorage(tradeStorageConfig.getValues(true));
+		try {
+			storage = (TradeStorage)tradeStorageConfig.get("storage");
+		} catch (ClassCastException e) {
+			plugin.log.log(Level.SEVERE, String.format("[TradingPost] TradeManager: Got an invalid class, expecting %s", TradeStorage.class.getName()), e);
+		}
+		if(storage == null) {
+			storage = new TradeStorage();
+			plugin.log.warning("[TradingPost] TradeManager: Failed to load from storage.yml, initialized new TradeStorage!");
+		}
+		
+		else plugin.log.info("[TradingPost] TradeManager: Successfully restored trading data.");
+		
+		// Now load the data into our own data structures
 		trades = new LinkedHashMap<Integer, TradeBase>();
-		Iterator<TradeBase> i = storage.trades.iterator();
-		while(i.hasNext()) {
-			TradeBase t = i.next();
-			trades.put(t.getId(), t);
+		if(storage.trades == null) {
+			plugin.log.severe("[TradingPost] TradeManager: Null trades list in TradeStorage!");
+		} else {
+			Iterator<TradeBase> i = storage.trades.iterator();
+			while(i.hasNext()) {
+				TradeBase t = i.next();
+				trades.put(t.getId(), t);
+			}
 		}
 		this.currentId = storage.currentId;
 	}
 	
 	public void serialize() {
-		if(storage == null) throw new IllegalStateException("Can't serialize if the storage object is null!");
+		if(storage == null) throw new IllegalStateException("Can't serialize with a null storage object!");
 		storage.setValues(currentId, trades.values());
 		if(tradeStorageConfig == null) loadStorage();
 		tradeStorageConfig.set("storage", storage);
 		saveStorage();
+		plugin.log.info("[TradingPost] TradeManager: Successfully saved trading data.");
 	}
 	
 	private void loadStorage() {
-		if(plugin == null) throw new IllegalStateException();
+		if(plugin == null) throw new IllegalStateException("loadStorage() was called before the TradeManager was initialized!");
 		if(tradeStorageFile == null) {
 			tradeStorageFile = new File(plugin.getDataFolder(), "storage.yml");
 		}
-		tradeStorageConfig = YamlConfiguration.loadConfiguration(tradeStorageFile);
+		try {
+			tradeStorageConfig = YamlConfiguration.loadConfiguration(tradeStorageFile);
+		} catch (Exception e) {
+			plugin.log.log(Level.WARNING, "Internal error occurred while loading storage.yml, falling back to defaults", e);
+			tradeStorageConfig = new YamlConfiguration();
+		}
 		
 	    // Get default persistence file from the jar
 	    InputStream defaultStorageStream = plugin.getResource("storage.yml");
@@ -111,6 +135,13 @@ public enum TradeManager {
 
 	public ItemBid getBid(int bidId) {
 		return null;
+	}
+
+	public void newBid(ItemBid i) {
+		// TODO: This should add a bid TO a trade, not just on its own.
+		// This is currently just for debugging.
+		this.trades.put(i.getId(), i);
+		
 	}
 
 }

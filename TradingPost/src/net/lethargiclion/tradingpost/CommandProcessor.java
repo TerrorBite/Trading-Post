@@ -1,10 +1,13 @@
 package net.lethargiclion.tradingpost;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Processes user commands for TradingPost.
@@ -30,7 +33,8 @@ public class CommandProcessor {
 	 */
 	public enum TPCommand {
 		help,
-		commands
+		commands,
+		debug
 		//TODO: Add full range of commands
 	}
 	
@@ -79,6 +83,8 @@ public class CommandProcessor {
 			return cmdHelp(p, cmdargs);
 		case commands:
 			return cmdCommands(p);
+		case debug:
+			return cmdDebug(p, cmdargs);
 		default:
 			p.sendMessage("Sorry, this command has not yet been implemented.");
 			log.warning(String.format("%s tried to run unimplemented command %s!", p.getName(), cmd.name()));
@@ -87,6 +93,19 @@ public class CommandProcessor {
 		
 	}
 	
+	private boolean cmdDebug(Player p, String[] cmdargs) {
+		
+		// Temporary debugging stuff.
+		//if(cmdargs[0].equalsIgnoreCase("newbid")) {
+			List<ItemStack> items = new ArrayList<ItemStack>();
+			items.add(p.getItemInHand());
+			ItemBid i = new ItemBid(p, items);
+			TradingPost.getManager().newBid(i);
+			p.sendMessage("A debug bid has been created.");
+		//}
+		return true;
+	}
+
 	/**
 	 * Provides a list of available TradingPost commands.
 	 * @param p The player running the command.

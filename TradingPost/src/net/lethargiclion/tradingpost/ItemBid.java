@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -51,6 +52,7 @@ public class ItemBid extends TradeBase {
 	 * Recreates an ItemBid from its serialized Map form.
 	 * @param serial The serialized object, using Bukkit's ConfigurationSerializable format.
 	 */
+	@SuppressWarnings("unchecked")
 	public static ItemBid deserialize(Map<String, Object> serial) {
 		int id = (Integer) serial.get("id");
 		OfflinePlayer owner = org.bukkit.Bukkit.getServer().getOfflinePlayer((String)serial.get("owner"));
@@ -58,13 +60,16 @@ public class ItemBid extends TradeBase {
 		ItemBidStatus status = ItemBidStatus.valueOf((String)serial.get("status"));
 		
 		//Deserialize list of items
+		// This is now done for us by the parser.
 		List<ItemStack> items = new ArrayList<ItemStack>();
+		/*
 		@SuppressWarnings("unchecked")
 		List<Map<String, Object>> itemstacks = (ArrayList<Map<String,Object>>)serial.get("items");
 		Iterator<Map<String, Object>> i = itemstacks.iterator();
 		while(i.hasNext()) {
 			items.add(ItemStack.deserialize(i.next()));
-		}
+		}*/
+		items = (List<ItemStack>)serial.get("items");
 		
 		return new ItemBid(owner, items, id, timestamp, status);
 	}
@@ -74,7 +79,6 @@ public class ItemBid extends TradeBase {
 		
 		Map<String, Object> serial = new LinkedHashMap<String, Object>();
 		
-		serial.put("type", "ItemBid");
 		serial.put("id", id);
 		serial.put("owner", owner.getName());
 		serial.put("timestamp", timestamp);
@@ -84,7 +88,12 @@ public class ItemBid extends TradeBase {
 		List<Map<String, Object>> itemstacks = new ArrayList<Map<String,Object>>();
 		Iterator<ItemStack> i = items.iterator();
 		while(i.hasNext()) {
-			itemstacks.add(i.next().serialize());
+			ItemStack s = i.next();
+			Map<String, Object> stack = new LinkedHashMap<String, Object>();
+			stack.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY,
+					ItemStack.class.getName());
+			stack.putAll(s.serialize());
+			itemstacks.add(stack);
 		}
 		serial.put("items", itemstacks);
 		return serial;

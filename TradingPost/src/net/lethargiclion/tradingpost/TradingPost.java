@@ -22,6 +22,8 @@ public class TradingPost extends JavaPlugin {
 	
 	static {
 		ConfigurationSerialization.registerClass(TradeStorage.class);
+		ConfigurationSerialization.registerClass(ItemBid.class);
+		ConfigurationSerialization.registerClass(SellTrade.class);
 	}
 	
 	Logger log = Logger.getLogger("Minecraft");

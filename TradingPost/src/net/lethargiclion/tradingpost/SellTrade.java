@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -37,18 +38,22 @@ public class SellTrade extends TradeBase {
 		this.bids = bids;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static SellTrade deserialize(Map<String, Object> serial) {
 		// TODO: this is incomplete.
 		OfflinePlayer owner = Bukkit.getOfflinePlayer((String)serial.get("owner"));
 		
-		//Deserialize list of items
+		//Deserialize list of items. Actually this is now done for us by the parser.
 		List<ItemStack> items = new ArrayList<ItemStack>();
+		/*
 		@SuppressWarnings("unchecked")
 		List<Map<String, Object>> itemstacks = (ArrayList<Map<String,Object>>)serial.get("items");
 		Iterator<Map<String, Object>> i = itemstacks.iterator();
 		while(i.hasNext()) {
 			items.add(ItemStack.deserialize(i.next()));
 		}
+		*/
+		items = (List<ItemStack>)serial.get("items");
 		
 		return new SellTrade(owner, items);
 	}
@@ -65,7 +70,12 @@ public class SellTrade extends TradeBase {
 		List<Map<String, Object>> itemstacks = new ArrayList<Map<String,Object>>();
 		Iterator<ItemStack> i = items.iterator();
 		while(i.hasNext()) {
-			itemstacks.add(i.next().serialize());
+			ItemStack s = i.next();
+			Map<String, Object> stack = new LinkedHashMap<String, Object>();
+			stack.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY,
+					ItemStack.class.getName());
+			stack.putAll(s.serialize());
+			itemstacks.add(stack);
 		}
 		serial.put("items", itemstacks);
 		
