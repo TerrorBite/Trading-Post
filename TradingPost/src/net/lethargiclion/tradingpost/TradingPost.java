@@ -25,7 +25,7 @@ public class TradingPost extends JavaPlugin {
 	
 	public void onEnable() {
 		// Start out by initializing the TradeManager.
-		getManager().setPlugin(this);
+		getManager().initialize(this);
 		
 		log.info("[TradingPost] Successfully enabled.");
 	}

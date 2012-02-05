@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public class SellTrade extends TradeBase {
 	
-	List<ItemBid> bids;
+	List<Integer> bids;
 	TradeStatus status;
 	int AcceptedBidId;
 	
@@ -34,14 +34,11 @@ public class SellTrade extends TradeBase {
 		this.id = id;
 		this.timestamp = timestamp;
 		this.status = status;
-		
-		Iterator<Integer> i = bids.iterator();
-		while(i.hasNext()) {
-			this.bids.add(TradingPost.getManager().getBid(i.next()));
-		}
+		this.bids = bids;
 	}
 
 	public static SellTrade deserialize(Map<String, Object> serial) {
+		// TODO: this is incomplete.
 		OfflinePlayer owner = Bukkit.getOfflinePlayer((String)serial.get("owner"));
 		
 		//Deserialize list of items
@@ -62,6 +59,7 @@ public class SellTrade extends TradeBase {
 		serial.put("owner",	this.owner.getName());
 		serial.put("id", this.id);
 		serial.put("status", this.status.name());
+		serial.put("bids", this.bids);
 		
 		// Serialize items
 		List<Map<String, Object>> itemstacks = new ArrayList<Map<String,Object>>();

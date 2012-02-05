@@ -74,6 +74,7 @@ public class ItemBid extends TradeBase {
 		
 		Map<String, Object> serial = new LinkedHashMap<String, Object>();
 		
+		serial.put("type", "ItemBid");
 		serial.put("id", id);
 		serial.put("owner", owner.getName());
 		serial.put("timestamp", timestamp);

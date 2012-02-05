@@ -2,6 +2,7 @@ package net.lethargiclion.tradingpost;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -33,6 +34,18 @@ public abstract class TradeBase implements ConfigurationSerializable {
 	
 	public Date getTimestamp() {
 		return timestamp;
+	}
+	
+	public static TradeBase deserialize(Map<String, Object> serialData) {
+		// This is pretty awful actually
+		TradeBase instance;
+		if(((String)serialData.get("type")).equalsIgnoreCase("itembid")) {
+			instance = ItemBid.deserialize(serialData);
+		} else {
+			instance = SellTrade.deserialize(serialData);
+		}
+		
+		return instance;
 	}
 
 };
