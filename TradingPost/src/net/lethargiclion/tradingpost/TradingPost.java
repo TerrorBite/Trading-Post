@@ -36,9 +36,15 @@ public class TradingPost extends JavaPlugin {
 	
 	CommandProcessor processor = new CommandProcessor(log);
 	
+	public TradingPost() {
+	}
+	
 	public void onEnable() {
 		// Start out by initializing the TradeManager.
 		getManager().initialize(this);
+		
+		// Register events
+		getServer().getPluginManager().registerEvents(getManager(), this);
 		
 		log.info("[TradingPost] Successfully enabled.");
 	}

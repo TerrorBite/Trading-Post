@@ -14,6 +14,9 @@ import java.util.logging.Level;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -21,7 +24,7 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public enum TradeManager {
+public enum TradeManager implements Listener {
 	INSTANCE;
 	
 	/**
@@ -234,6 +237,12 @@ public enum TradeManager {
 		// This is currently just for debugging.
 		this.trades.put(i.getId(), i);
 		
+	}
+	
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		e.getPlayer().sendMessage("You have items waiting for you. Delivering them now.");
+		this.deliverPending(e.getPlayer());
 	}
 
 }
