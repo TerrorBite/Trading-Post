@@ -9,7 +9,7 @@ public class CommandNotFoundException extends java.lang.Exception {
 	 * @param reason The reason for this exception.
 	 */
 	public CommandNotFoundException(String reason) {
-		this.reason = reason;
+		super(reason);
 	}
 	
 	@Override
