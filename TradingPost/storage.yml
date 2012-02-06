@@ -2,3 +2,4 @@ storage:
     ==: net.lethargiclion.tradingpost.TradeStorage
     currentId: 0
     trades: []
+    deliveries: []

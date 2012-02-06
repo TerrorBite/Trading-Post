@@ -65,14 +65,14 @@ public class TradeStorage implements ConfigurationSerializable {
 			// Attempt to cast incoming data to a collection of TradeBase
 			// The deserialization of the PendingItemDelivery objects in the list
 			// should have been done for us by the YAML parser.
-			deliveries = (Collection<PendingItemDelivery>)serialData.get("trades");
+			deliveries = (Collection<PendingItemDelivery>)serialData.get("deliveries");
 		} catch(ClassCastException ex) {
 			TradingPost.log.log(Level.SEVERE,
 					"Unable to deserialize: Invalid delivery data.", ex);
 		}
 		// If that didn't go well, make an empty list
 		if(deliveries == null) deliveries = new ArrayList<PendingItemDelivery>();
-		TradingPost.log.info(String.format("Instance %d has %d new trades", myinstance, trades.size()));
+		TradingPost.log.info(String.format("Instance %d has %d new deliveries", myinstance, deliveries.size()));
 	}
 	
 	public void setValues(int currentId, Collection<TradeBase> trades, Collection<PendingItemDelivery> deliveries) {

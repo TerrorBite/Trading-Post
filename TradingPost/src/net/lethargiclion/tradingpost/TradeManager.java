@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,7 +39,7 @@ public enum TradeManager {
 	/**
 	 * Holds the pending item deliveries.
 	 */
-	List<PendingItemDelivery> pendingDeliveries;
+	Collection<PendingItemDelivery> pendingDeliveries;
 	
 	/**
 	 * Holds the last-used ID value, to enable auto-incrementing ID values.
@@ -94,6 +95,7 @@ public enum TradeManager {
 				trades.put(t.getId(), t);
 			}
 		}
+		pendingDeliveries = storage.deliveries;
 		this.currentId = storage.currentId;
 	}
 	
@@ -176,14 +178,26 @@ public enum TradeManager {
 	}
 	
 	/**
-	 * Delivers items to a player.
-	 * @param p
-	 * @param items
+	 * Delivers items to a player. The items will be delivered immediately if
+	 * the player is online.
+	 * @param p The player to deliver to.
+	 * @param items The items to deliver.
 	 */
 	public void deliverItems(OfflinePlayer p, List<ItemStack> items) {
-		if(p.isOnline()) {
+		deliverItems(p, items, false);
+	}
+	
+	/**
+	 * Delivers items to a player. The items will be delivered immediately if
+	 * the player is online, unless forceDelay is set to {@code true}.
+	 * @param p The player to deliver to.
+	 * @param items The items to deliver.
+	 * @param forceDelay If true, will force the items to be delivered later.
+	 */
+	public void deliverItems(OfflinePlayer p, List<ItemStack> items, boolean forceDelay) {
+		if(p.isOnline() && !forceDelay) {
 			// Try and deliver the items now
-			Map<Integer, ItemStack> undelivered = p.getPlayer().getInventory().addItem((ItemStack[]) items.toArray());
+			Map<Integer, ItemStack> undelivered = p.getPlayer().getInventory().addItem(items.toArray(new ItemStack[items.size()]));
 			
 			// If some items can't fit, save them for later
 			if(!undelivered.isEmpty()) {
@@ -201,7 +215,7 @@ public enum TradeManager {
 	 * Attempts to deliver all pending items to the given player.
 	 * @param p The player to deliver to.
 	 */
-	public void deliverAll(OfflinePlayer p) {
+	public void deliverPending(OfflinePlayer p) {
 		Iterator<PendingItemDelivery> i = pendingDeliveries.iterator();
 		while(i.hasNext()) {
 			PendingItemDelivery delivery = i.next();
@@ -209,7 +223,7 @@ public enum TradeManager {
 				// Attempt delivery of items.
 				if(delivery.deliver()) {
 					// Remove pending delivery if it was successful.
-					pendingDeliveries.remove(delivery);
+					i.remove();
 				}
 			}
 		}

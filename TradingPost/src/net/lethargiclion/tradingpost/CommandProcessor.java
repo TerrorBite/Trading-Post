@@ -34,7 +34,8 @@ public class CommandProcessor {
 	public enum TPCommand {
 		help,
 		commands,
-		debug
+		deliver,
+		debug // TODO: Don't leave debug command in.
 		//TODO: Add full range of commands
 	}
 	
@@ -83,6 +84,8 @@ public class CommandProcessor {
 			return cmdHelp(p, cmdargs);
 		case commands:
 			return cmdCommands(p);
+		case deliver:
+			return cmdDeliver(p);
 		case debug:
 			return cmdDebug(p, cmdargs);
 		default:
@@ -93,16 +96,32 @@ public class CommandProcessor {
 		
 	}
 	
+	private boolean cmdDeliver(Player p) {
+		p.sendMessage("Forcing delivery of pending items.");
+		TradingPost.getManager().deliverPending(p);
+		return true;
+	}
+
 	private boolean cmdDebug(Player p, String[] cmdargs) {
 		
 		// Temporary debugging stuff.
-		//if(cmdargs[0].equalsIgnoreCase("newbid")) {
-			List<ItemStack> items = new ArrayList<ItemStack>();
+		if(cmdargs[0].equalsIgnoreCase("bid")) {
+		    List<ItemStack> items = new ArrayList<ItemStack>();
 			items.add(p.getItemInHand());
 			ItemBid i = new ItemBid(p, items);
 			TradingPost.getManager().newBid(i);
 			p.sendMessage("A debug bid has been created.");
-		//}
+		}
+		else if(cmdargs[0].equalsIgnoreCase("deliver")) {
+			List<ItemStack> items = new ArrayList<ItemStack>();
+			items.add(p.getItemInHand());
+			p.setItemInHand(new ItemStack(0));
+			TradingPost.getManager().deliverItems(p, items, true);
+			p.sendMessage("Your items will be returned to you later.");
+		}
+		else {
+			p.sendMessage(String.format("Unknown debug command \"%s\"", cmdargs[0]));
+		}
 		return true;
 	}
 
@@ -155,6 +174,13 @@ public class CommandProcessor {
 			usage = "commands";
 			info = "Shows a list of available TradingPost commands.";
 			break;
+		case deliver:
+			usage = "deliver";
+			info = "Causes TradingPost to attempt redelivery of any waiting items.";
+		case debug:
+			// TODO: Don't leave this in.
+			usage = "debug <feature>";
+			info = "Debugging command for developer use.";
 		default:
 			usage = cmd.name();
 			info = "Sorry, there is no help available for this command.";

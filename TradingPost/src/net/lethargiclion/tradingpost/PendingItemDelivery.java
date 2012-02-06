@@ -29,8 +29,10 @@ public class PendingItemDelivery implements ConfigurationSerializable {
 		this(p, items.toArray(new ItemStack[items.size()]));
 	}
 	
+	@SuppressWarnings("unchecked")
 	public PendingItemDelivery(Map<String, Object> serialData) {
-		items = (ItemStack[])serialData.get("items");
+		List<ItemStack> newItems = (List<ItemStack>)serialData.get("items");
+		items = newItems.toArray(new ItemStack[newItems.size()]);
 		target = org.bukkit.Bukkit.getServer().getOfflinePlayer((String)serialData.get("target"));
 	}
 	
