@@ -3,11 +3,14 @@ package net.lethargiclion.tradingpost;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -132,8 +135,35 @@ public enum TradeManager {
 	public int getNextId() {
 		return currentId++;
 	}
+	
+	public TradeBase getTrade(int tradeId) {
+		if(!trades.containsKey(tradeId)) return null;
+		return trades.get(tradeId);
+	}
+	
+	public List<TradeBase> getPlayerTrades(OfflinePlayer p) {
+		List<TradeBase> playerTrades = new ArrayList<TradeBase>();
+		Iterator<TradeBase> i = trades.values().iterator();
+		while(i.hasNext()) {
+			TradeBase t = i.next();
+			if(t.getOwner().equals(p)) {
+				playerTrades.add(t);
+			}
+		}
+		return playerTrades;
+	}
 
+	
+	/**
+	 * Convenience method for getting an ItemBid
+	 * @param bidId The ID of the bid to return.
+	 * @return The requested ItemBid, or null if there is no ItemBid with that ID.
+	 */
 	public ItemBid getBid(int bidId) {
+		TradeBase t = getTrade(bidId);
+		if(t instanceof ItemBid) {
+			return (ItemBid)t;
+		}
 		return null;
 	}
 
