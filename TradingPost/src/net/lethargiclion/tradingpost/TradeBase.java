@@ -18,6 +18,7 @@ public abstract class TradeBase implements ConfigurationSerializable {
 	protected List<ItemStack> items;
 	protected OfflinePlayer owner;
 	protected Date timestamp;
+	protected TradeStatus status;
 	
 	public int getId() {
 		return id;
@@ -33,6 +34,10 @@ public abstract class TradeBase implements ConfigurationSerializable {
 	
 	public Date getTimestamp() {
 		return timestamp;
+	}
+	
+	public TradeStatus getStatus() {
+		return status;
 	}
 
 };

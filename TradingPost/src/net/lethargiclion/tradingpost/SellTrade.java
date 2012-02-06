@@ -51,14 +51,31 @@ public class SellTrade extends TradeBase {
 		if(!bids.contains(bidId)) {
 			throw new TradeNotFoundException(String.format("Trade with ID %d does not have a bid with ID %d", id, bidId));
 		}
-		bid.accept();
+		
+		status = TradeStatus.completed;
+		// Accept this bid
+		bid.accept(this.owner);
+		// Deliver this trade's items to their new owner
+		TradingPost.getManager().deliverItems(bid.getOwner(), items);
+		
+		// Reject all other bids
 		Iterator<Integer> i = bids.iterator();
 		while(i.hasNext()) {
 			int nextBidId = i.next();
 			if(nextBidId == bidId) continue;
-			ItemBid b = TradingPost.getManager().getBid(i.next());
-			b.reject();	
+			TradingPost.getManager().getBid(nextBidId).reject();	
 		}
+	}
+	
+	public void withdraw() {
+		status = TradeStatus.withdrawn;
+		
+		// Reject all bids
+		Iterator<Integer> i = bids.iterator();
+		while(i.hasNext()) {
+			TradingPost.getManager().getBid(i.next()).reject();
+		}
+		
 	}
 
 	@SuppressWarnings("unchecked")

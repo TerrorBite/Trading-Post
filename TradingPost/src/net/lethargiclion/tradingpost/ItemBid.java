@@ -18,9 +18,6 @@ import org.bukkit.inventory.ItemStack;
  */
 public class ItemBid extends TradeBase {
 	
-	private Date timestamp; // Time this bid was made
-	private ItemBidStatus status; // Current status of this bid
-	
 	/**
 	 * Constructs a new ItemBid.
 	 * This particular constructor is designed to be used when the user actually makes a bid.
@@ -28,7 +25,7 @@ public class ItemBid extends TradeBase {
 	 * @param items The items that they are bidding.
 	 */
 	public ItemBid(OfflinePlayer owner, List<ItemStack> items) {
-		this(owner, items, TradingPost.getManager().getNextId(), new Date(), ItemBidStatus.open);
+		this(owner, items, TradingPost.getManager().getNextId(), new Date(), TradeStatus.open);
 	}
 	
 	/**
@@ -40,7 +37,7 @@ public class ItemBid extends TradeBase {
 	 * @param timestamp The time the bid was made.
 	 * @param status The current status of this bid.
 	 */
-	public ItemBid(OfflinePlayer owner, List<ItemStack> items, int id, Date timestamp, ItemBidStatus status) {
+	public ItemBid(OfflinePlayer owner, List<ItemStack> items, int id, Date timestamp, TradeStatus status) {
 		this.id = id;
 		this.owner = owner;
 		this.items = items; // Not a deep copy! What happens if the caller later edits their List?
@@ -48,12 +45,18 @@ public class ItemBid extends TradeBase {
 		this.status = status;
 	}
 	
-	public void accept() {
-		status = ItemBidStatus.accepted;
+	public void accept(OfflinePlayer accepter) {
+		status = TradeStatus.accepted;
+		TradingPost.getManager().deliverItems(accepter, items);
 	}
 	
 	public void reject() {
-		status = ItemBidStatus.rejected;
+		status = TradeStatus.rejected;
+		TradingPost.getManager().deliverItems(owner, items);
+	}
+	
+	public TradeStatus getStatus() {
+		return status;
 	}
 	
 	/**
@@ -65,7 +68,7 @@ public class ItemBid extends TradeBase {
 		int id = (Integer) serial.get("id");
 		OfflinePlayer owner = org.bukkit.Bukkit.getServer().getOfflinePlayer((String)serial.get("owner"));
 		Date timestamp = (Date)serial.get("timestamp");
-		ItemBidStatus status = ItemBidStatus.valueOf((String)serial.get("status"));
+		TradeStatus status = TradeStatus.valueOf((String)serial.get("status"));
 		
 		//Deserialize list of items
 		// This is now done for us by the parser.
