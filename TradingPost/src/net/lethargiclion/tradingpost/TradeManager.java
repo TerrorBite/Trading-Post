@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Singleton class for managing trades.
@@ -33,6 +34,11 @@ public enum TradeManager {
 	 * Holds all the trades, bids, etc.
 	 */
 	Map<Integer, TradeBase> trades;
+	
+	/**
+	 * Holds the pending item deliveries.
+	 */
+	List<PendingItemDelivery> pendingDeliveries;
 	
 	/**
 	 * Holds the last-used ID value, to enable auto-incrementing ID values.
@@ -64,21 +70,23 @@ public enum TradeManager {
 		
 		//storage = new TradeStorage(tradeStorageConfig.getValues(true));
 		try {
+			// Load our Storage class out of the config object
 			storage = (TradeStorage)tradeStorageConfig.get("storage");
 		} catch (ClassCastException e) {
-			plugin.log.log(Level.SEVERE, String.format("[TradingPost] TradeManager: Got an invalid class, expecting %s", TradeStorage.class.getName()), e);
+			// Config didn't give us the correct class
+			TradingPost.log.log(Level.SEVERE, String.format("[TradingPost] TradeManager: Got an invalid class, expecting %s", TradeStorage.class.getName()), e);
 		}
 		if(storage == null) {
 			storage = new TradeStorage();
-			plugin.log.warning("[TradingPost] TradeManager: Failed to load from storage.yml, initialized new TradeStorage!");
+			TradingPost.log.warning("[TradingPost] TradeManager: Failed to load from storage.yml, initialized new TradeStorage!");
 		}
 		
-		else plugin.log.info("[TradingPost] TradeManager: Successfully restored trading data.");
+		else TradingPost.log.info("[TradingPost] TradeManager: Successfully restored trading data.");
 		
 		// Now load the data into our own data structures
 		trades = new LinkedHashMap<Integer, TradeBase>();
 		if(storage.trades == null) {
-			plugin.log.severe("[TradingPost] TradeManager: Null trades list in TradeStorage!");
+			TradingPost.log.severe("[TradingPost] TradeManager: Null trades list in TradeStorage!");
 		} else {
 			Iterator<TradeBase> i = storage.trades.iterator();
 			while(i.hasNext()) {
@@ -91,11 +99,11 @@ public enum TradeManager {
 	
 	public void serialize() {
 		if(storage == null) throw new IllegalStateException("Can't serialize with a null storage object!");
-		storage.setValues(currentId, trades.values());
+		storage.setValues(currentId, trades.values(), pendingDeliveries);
 		if(tradeStorageConfig == null) loadStorage();
 		tradeStorageConfig.set("storage", storage);
 		saveStorage();
-		plugin.log.info("[TradingPost] TradeManager: Successfully saved trading data.");
+		TradingPost.log.info("[TradingPost] TradeManager: Successfully saved trading data.");
 	}
 	
 	private void loadStorage() {
@@ -106,7 +114,7 @@ public enum TradeManager {
 		try {
 			tradeStorageConfig = YamlConfiguration.loadConfiguration(tradeStorageFile);
 		} catch (Exception e) {
-			plugin.log.log(Level.WARNING, "Internal error occurred while loading storage.yml, falling back to defaults", e);
+			TradingPost.log.log(Level.WARNING, "Internal error occurred while loading storage.yml, falling back to defaults", e);
 			tradeStorageConfig = new YamlConfiguration();
 		}
 		
@@ -124,7 +132,7 @@ public enum TradeManager {
 		    try {
 		        tradeStorageConfig.save(tradeStorageFile);
 		    } catch (IOException ex) {
-		        plugin.log.log(Level.SEVERE, "Could not persist storage to " + tradeStorageFile, ex);
+		        TradingPost.log.log(Level.SEVERE, "Could not persist storage to " + tradeStorageFile, ex);
 		    }
 	}
 	
@@ -165,6 +173,46 @@ public enum TradeManager {
 			return (ItemBid)t;
 		}
 		return null;
+	}
+	
+	/**
+	 * Delivers items to a player.
+	 * @param p
+	 * @param items
+	 */
+	public void deliverItems(OfflinePlayer p, List<ItemStack> items) {
+		if(p.isOnline()) {
+			// Try and deliver the items now
+			Map<Integer, ItemStack> undelivered = p.getPlayer().getInventory().addItem((ItemStack[]) items.toArray());
+			
+			// If some items can't fit, save them for later
+			if(!undelivered.isEmpty()) {
+				p.getPlayer().sendMessage("Some items wouldn't fit in your inventory. They've been saved for later.");
+				pendingDeliveries.add(new PendingItemDelivery(p, undelivered.values().toArray(new ItemStack[undelivered.values().size()])));
+			}
+		}
+		else {
+			// Deliver the items later
+			pendingDeliveries.add(new PendingItemDelivery(p, items));
+		}
+	}
+	
+	/**
+	 * Attempts to deliver all pending items to the given player.
+	 * @param p The player to deliver to.
+	 */
+	public void deliverAll(OfflinePlayer p) {
+		Iterator<PendingItemDelivery> i = pendingDeliveries.iterator();
+		while(i.hasNext()) {
+			PendingItemDelivery delivery = i.next();
+			if(delivery.getTarget().equals(p)) {
+				// Attempt delivery of items.
+				if(delivery.deliver()) {
+					// Remove pending delivery if it was successful.
+					pendingDeliveries.remove(delivery);
+				}
+			}
+		}
 	}
 
 	public void newBid(ItemBid i) {

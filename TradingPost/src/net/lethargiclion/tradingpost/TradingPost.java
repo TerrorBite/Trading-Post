@@ -21,12 +21,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TradingPost extends JavaPlugin {
 	
 	static {
+		// Register the classes that we will be serializing
 		ConfigurationSerialization.registerClass(TradeStorage.class);
 		ConfigurationSerialization.registerClass(ItemBid.class);
 		ConfigurationSerialization.registerClass(SellTrade.class);
+		ConfigurationSerialization.registerClass(PendingItemDelivery.class);
 	}
 	
-	Logger log = Logger.getLogger("Minecraft");
+	/**
+	 * The logger for this plugin.
+	 * Statically accessible for convenience.
+	 */
+	public static Logger log = Logger.getLogger("Minecraft");
 	
 	CommandProcessor processor = new CommandProcessor(log);
 	

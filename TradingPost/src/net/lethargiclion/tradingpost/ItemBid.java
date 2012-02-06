@@ -48,6 +48,14 @@ public class ItemBid extends TradeBase {
 		this.status = status;
 	}
 	
+	public void accept() {
+		status = ItemBidStatus.accepted;
+	}
+	
+	public void reject() {
+		status = ItemBidStatus.rejected;
+	}
+	
 	/**
 	 * Recreates an ItemBid from its serialized Map form.
 	 * @param serial The serialized object, using Bukkit's ConfigurationSerializable format.

@@ -21,7 +21,7 @@ public class SellTrade extends TradeBase {
 	
 	List<Integer> bids;
 	TradeStatus status;
-	int AcceptedBidId;
+	int acceptedBidId;
 	
 	public SellTrade(OfflinePlayer p, List<ItemStack> items) {
 		this(p, items, TradingPost.getManager().getNextId(), new Date(),
@@ -36,6 +36,29 @@ public class SellTrade extends TradeBase {
 		this.timestamp = timestamp;
 		this.status = status;
 		this.bids = bids;
+	}
+	
+	public List<Integer> getBids() {
+		return bids;
+	}
+	
+	public void makeBid(ItemBid bid) {
+		bids.add(bid.getId());
+	}
+	
+	public void acceptBid(ItemBid bid) throws TradeNotFoundException {
+		int bidId = bid.getId();
+		if(!bids.contains(bidId)) {
+			throw new TradeNotFoundException(String.format("Trade with ID %d does not have a bid with ID %d", id, bidId));
+		}
+		bid.accept();
+		Iterator<Integer> i = bids.iterator();
+		while(i.hasNext()) {
+			int nextBidId = i.next();
+			if(nextBidId == bidId) continue;
+			ItemBid b = TradingPost.getManager().getBid(i.next());
+			b.reject();	
+		}
 	}
 
 	@SuppressWarnings("unchecked")
