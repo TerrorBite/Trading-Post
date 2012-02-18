@@ -25,7 +25,7 @@ public class TradingPost extends JavaPlugin {
 		ConfigurationSerialization.registerClass(TradeStorage.class);
 		ConfigurationSerialization.registerClass(ItemBid.class);
 		ConfigurationSerialization.registerClass(SellTrade.class);
-		ConfigurationSerialization.registerClass(PendingItemDelivery.class);
+		ConfigurationSerialization.registerClass(QueuedItemDelivery.class);
 	}
 	
 	/**

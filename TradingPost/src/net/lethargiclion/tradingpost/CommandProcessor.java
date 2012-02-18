@@ -97,7 +97,7 @@ public class CommandProcessor {
 	}
 	
 	private boolean cmdDeliver(Player p) {
-		switch(TradingPost.getManager().deliverPending(p)) {
+		switch(TradingPost.getManager().deliverQueued(p)) {
 		case NO_ITEMS:
 			p.sendMessage("There are no items to be delivered.");
 			break;

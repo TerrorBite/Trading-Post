@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import net.lethargiclion.tradingpost.PendingItemDelivery.DeliveryResult;
+import net.lethargiclion.tradingpost.QueuedItemDelivery.DeliveryResult;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -44,7 +44,7 @@ public enum TradeManager implements Listener {
 	/**
 	 * Holds the pending item deliveries.
 	 */
-	Collection<PendingItemDelivery> pendingDeliveries;
+	Collection<QueuedItemDelivery> queuedDeliveries;
 	
 	/**
 	 * Holds the last-used ID value, to enable auto-incrementing ID values.
@@ -100,13 +100,13 @@ public enum TradeManager implements Listener {
 				trades.put(t.getId(), t);
 			}
 		}
-		pendingDeliveries = storage.deliveries;
+		queuedDeliveries = storage.deliveries;
 		this.currentId = storage.currentId;
 	}
 	
 	public void serialize() {
 		if(storage == null) throw new IllegalStateException("Can't serialize with a null storage object!");
-		storage.setValues(currentId, trades.values(), pendingDeliveries);
+		storage.setValues(currentId, trades.values(), queuedDeliveries);
 		if(tradeStorageConfig == null) loadStorage();
 		tradeStorageConfig.set("storage", storage);
 		saveStorage();
@@ -209,12 +209,12 @@ public enum TradeManager implements Listener {
 			if(undelivered.isEmpty()) {
 				return true;
 			} // else some items can't fit, save them for later
-			pendingDeliveries.add(new PendingItemDelivery(p, undelivered.values().toArray(new ItemStack[undelivered.values().size()])));
+			queuedDeliveries.add(new QueuedItemDelivery(p, undelivered.values().toArray(new ItemStack[undelivered.values().size()])));
 			
 		}
 		else {
 			// Player is offline, deliver the items later
-			pendingDeliveries.add(new PendingItemDelivery(p, items));
+			queuedDeliveries.add(new QueuedItemDelivery(p, items));
 		}
 		return false;
 	}
@@ -224,16 +224,16 @@ public enum TradeManager implements Listener {
 	 * @param p The player to deliver to.
 	 * @returns true if items were delivered.
 	 */
-	public DeliveryResult deliverPending(OfflinePlayer p) {
+	public DeliveryResult deliverQueued(OfflinePlayer p) {
 		if(!p.isOnline()) {
 			return DeliveryResult.PLAYER_OFFLINE;
 		}
 		DeliveryResult state = DeliveryResult.SUCCESS;
-		Iterator<PendingItemDelivery> i = pendingDeliveries.iterator();
+		Iterator<QueuedItemDelivery> i = queuedDeliveries.iterator();
 		// If there are no items to be delivered, return appropriate status
 		if(!i.hasNext()) return DeliveryResult.NO_ITEMS;
 		while(i.hasNext()) {
-			PendingItemDelivery delivery = i.next();
+			QueuedItemDelivery delivery = i.next();
 			if(delivery.getTarget().equals(p)) {
 				// Attempt delivery of items.
 				if(delivery.deliver() == DeliveryResult.SUCCESS) {
@@ -256,7 +256,7 @@ public enum TradeManager implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		e.getPlayer().sendMessage("You have items waiting for you. Delivering them now.");
-		this.deliverPending(e.getPlayer());
+		this.deliverQueued(e.getPlayer());
 	}
 
 }

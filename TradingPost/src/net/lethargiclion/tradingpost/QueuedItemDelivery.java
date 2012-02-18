@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public class PendingItemDelivery implements ConfigurationSerializable {
+public class QueuedItemDelivery implements ConfigurationSerializable {
 	
 	public enum DeliveryResult {
 		/**
@@ -39,17 +39,17 @@ public class PendingItemDelivery implements ConfigurationSerializable {
 	ItemStack[] items;
 	OfflinePlayer target;
 	
-	public PendingItemDelivery(OfflinePlayer p, ItemStack[] items) {
+	public QueuedItemDelivery(OfflinePlayer p, ItemStack[] items) {
 		target = p;
 		this.items = items;
 	}
 	
-	public PendingItemDelivery(OfflinePlayer p, List<ItemStack> items) {
+	public QueuedItemDelivery(OfflinePlayer p, List<ItemStack> items) {
 		this(p, items.toArray(new ItemStack[items.size()]));
 	}
 	
 	@SuppressWarnings("unchecked")
-	public PendingItemDelivery(Map<String, Object> serialData) {
+	public QueuedItemDelivery(Map<String, Object> serialData) {
 		List<ItemStack> newItems = (List<ItemStack>)serialData.get("items");
 		items = newItems.toArray(new ItemStack[newItems.size()]);
 		target = org.bukkit.Bukkit.getServer().getOfflinePlayer((String)serialData.get("target"));
