@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import net.lethargiclion.tradingpost.PendingItemDelivery.DeliveryResult;
+
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -196,40 +198,52 @@ public enum TradeManager implements Listener {
 	 * @param p The player to deliver to.
 	 * @param items The items to deliver.
 	 * @param forceDelay If true, will force the items to be delivered later.
+	 * @returns true if items were delivered without being queued.
 	 */
-	public void deliverItems(OfflinePlayer p, List<ItemStack> items, boolean forceDelay) {
+	public boolean deliverItems(OfflinePlayer p, List<ItemStack> items, boolean forceDelay) {
 		if(p.isOnline() && !forceDelay) {
 			// Try and deliver the items now
 			Map<Integer, ItemStack> undelivered = p.getPlayer().getInventory().addItem(items.toArray(new ItemStack[items.size()]));
 			
-			// If some items can't fit, save them for later
-			if(!undelivered.isEmpty()) {
-				p.getPlayer().sendMessage("Some items wouldn't fit in your inventory. They've been saved for later.");
-				pendingDeliveries.add(new PendingItemDelivery(p, undelivered.values().toArray(new ItemStack[undelivered.values().size()])));
-			}
+			// If all items were delivered, return true
+			if(undelivered.isEmpty()) {
+				return true;
+			} // else some items can't fit, save them for later
+			pendingDeliveries.add(new PendingItemDelivery(p, undelivered.values().toArray(new ItemStack[undelivered.values().size()])));
+			
 		}
 		else {
-			// Deliver the items later
+			// Player is offline, deliver the items later
 			pendingDeliveries.add(new PendingItemDelivery(p, items));
 		}
+		return false;
 	}
 	
 	/**
 	 * Attempts to deliver all pending items to the given player.
 	 * @param p The player to deliver to.
+	 * @returns true if items were delivered.
 	 */
-	public void deliverPending(OfflinePlayer p) {
+	public DeliveryResult deliverPending(OfflinePlayer p) {
+		if(!p.isOnline()) {
+			return DeliveryResult.PLAYER_OFFLINE;
+		}
+		DeliveryResult state = DeliveryResult.SUCCESS;
 		Iterator<PendingItemDelivery> i = pendingDeliveries.iterator();
+		// If there are no items to be delivered, return appropriate status
+		if(!i.hasNext()) return DeliveryResult.NO_ITEMS;
 		while(i.hasNext()) {
 			PendingItemDelivery delivery = i.next();
 			if(delivery.getTarget().equals(p)) {
 				// Attempt delivery of items.
-				if(delivery.deliver()) {
+				if(delivery.deliver() == DeliveryResult.SUCCESS) {
 					// Remove pending delivery if it was successful.
 					i.remove();
 				}
+				else state = DeliveryResult.NOT_ENOUGH_SPACE;
 			}
 		}
+		return state;
 	}
 
 	public void newBid(ItemBid i) {

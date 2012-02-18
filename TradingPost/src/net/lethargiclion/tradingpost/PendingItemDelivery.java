@@ -17,6 +17,25 @@ import org.bukkit.inventory.ItemStack;
  */
 public class PendingItemDelivery implements ConfigurationSerializable {
 	
+	public enum DeliveryResult {
+		/**
+		 * No items could be delivered because the player is not online.
+		 */
+		PLAYER_OFFLINE,
+		/**
+		 * Items could not be delivered because the user ran out of inventory space.
+		 */
+		NOT_ENOUGH_SPACE,
+		/**
+		 * All items were delivered successfully.
+		 */
+		SUCCESS,
+		/**
+		 * There are no items to be delivered.
+		 */
+		NO_ITEMS
+	}
+	
 	ItemStack[] items;
 	OfflinePlayer target;
 	
@@ -46,23 +65,22 @@ public class PendingItemDelivery implements ConfigurationSerializable {
 	 * This instance should then be removed from any list of pending deliveries.
 	 * @return True if all items were successfully delivered, otherwise false.
 	 */
-	public boolean deliver() {
+	public DeliveryResult deliver() {
 		// If items is null, then the items have already been delivered successfully.
-		if(items == null) return true;
+		if(items == null) return DeliveryResult.NO_ITEMS;
 		
 		// If our target is offline, we cannot deliver to them.
-		if(!target.isOnline()) return false;
+		if(!target.isOnline()) return DeliveryResult.PLAYER_OFFLINE;
 		
 		// They are online, so attempt delivery.
 		Map<Integer, ItemStack> undelivered = target.getPlayer().getInventory().addItem(items);
 		if(!undelivered.isEmpty()) {
 			// Their inventory is full - save the undelivered items for later.
-			target.getPlayer().sendMessage("Some items wouldn't fit in your inventory. They've been saved for later.");
 			items = undelivered.values().toArray(new ItemStack[undelivered.values().size()]);
-			return false;
+			return DeliveryResult.NOT_ENOUGH_SPACE;
 		}
 		this.items = null;
-		return true;
+		return DeliveryResult.SUCCESS;
 	}
 
 	@Override

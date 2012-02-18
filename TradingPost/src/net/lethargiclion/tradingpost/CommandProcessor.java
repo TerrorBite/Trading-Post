@@ -97,8 +97,17 @@ public class CommandProcessor {
 	}
 	
 	private boolean cmdDeliver(Player p) {
-		p.sendMessage("Forcing delivery of pending items.");
-		TradingPost.getManager().deliverPending(p);
+		switch(TradingPost.getManager().deliverPending(p)) {
+		case NO_ITEMS:
+			p.sendMessage("There are no items to be delivered.");
+			break;
+		case SUCCESS:
+			p.sendMessage("All waiting items have been delivered to you.");
+			break;
+		case NOT_ENOUGH_SPACE:
+			p.sendMessage("Your inventory has run out of space for new items.");
+			p.sendMessage("Clear some inventory slots, and then try again.");
+		}
 		return true;
 	}
 
