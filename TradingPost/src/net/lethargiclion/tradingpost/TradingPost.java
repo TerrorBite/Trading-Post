@@ -32,13 +32,14 @@ public class TradingPost extends JavaPlugin {
 	 * The logger for this plugin.
 	 * Statically accessible for convenience.
 	 */
-	public static Logger log = Logger.getLogger("Minecraft");
+	public static Logger log;
 
 	private TradeManager manager;
 	
 	CommandProcessor processor;
 	
 	public TradingPost() {
+		log = this.getLogger();
 	}
 	
 	/**
