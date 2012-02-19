@@ -1,6 +1,7 @@
 package net.lethargiclion.tradingpost;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -20,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 public class SellTrade extends TradeBase {
 	
 	List<Integer> bids;
-	TradeStatus status;
 	int acceptedBidId;
 	
 	public SellTrade(OfflinePlayer p, List<ItemStack> items) {
@@ -39,43 +39,23 @@ public class SellTrade extends TradeBase {
 	}
 	
 	public List<Integer> getBids() {
-		return bids;
+		return Collections.unmodifiableList(bids);
 	}
 	
-	public void makeBid(ItemBid bid) {
+	public void addBid(ItemBid bid) {
 		bids.add(bid.getId());
 	}
 	
-	public void acceptBid(ItemBid bid) throws TradeNotFoundException {
-		int bidId = bid.getId();
-		if(!bids.contains(bidId)) {
-			throw new TradeNotFoundException(String.format("Trade with ID %d does not have a bid with ID %d", id, bidId));
-		}
-		
+	public void acceptBid(int bidId) {		
 		status = TradeStatus.completed;
 		// Accept this bid
-		bid.accept(this.owner);
-		// Deliver this trade's items to their new owner
-		TradingPost.getManager().deliverItems(bid.getOwner(), items);
-		
-		// Reject all other bids
-		Iterator<Integer> i = bids.iterator();
-		while(i.hasNext()) {
-			int nextBidId = i.next();
-			if(nextBidId == bidId) continue;
-			TradingPost.getManager().getBid(nextBidId).reject();	
-		}
+		this.acceptedBidId = bidId;
 	}
 	
-	public void withdraw() {
+	public void markWithdrawn() {
+		// Silently ignore attempts to withdraw a bid that is not open.
+		if(status != TradeStatus.open) return;
 		status = TradeStatus.withdrawn;
-		
-		// Reject all bids
-		Iterator<Integer> i = bids.iterator();
-		while(i.hasNext()) {
-			TradingPost.getManager().getBid(i.next()).reject();
-		}
-		
 	}
 
 	@SuppressWarnings("unchecked")

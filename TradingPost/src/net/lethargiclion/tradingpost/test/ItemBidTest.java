@@ -24,7 +24,7 @@ public class ItemBidTest {
 	public void createTestInstance() {
 		this.test = new ItemBid(PLAYER,
 				new ArrayList<ItemStack>(),
-				ID, new Date(), TradeStatus.open);
+				ID, new Date(), TradeStatus.open, 0);
 	}
 	
 	@Test
@@ -45,7 +45,7 @@ public class ItemBidTest {
 	
 	@Test
 	public void acceptance() {
-		test.accept(PLAYER);
+		test.markAccepted();
 		assertEquals(test.getStatus(), TradeStatus.accepted);
 	}
 	

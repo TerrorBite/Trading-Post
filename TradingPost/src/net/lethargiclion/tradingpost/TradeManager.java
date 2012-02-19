@@ -183,11 +183,62 @@ public class TradeManager implements Listener {
 		return playerTrades;
 	}
 
-	public int makeTrade(OfflinePlayer op, List<ItemStack> items) {
+	public int makeTrade(OfflinePlayer p, List<ItemStack> items) {
 		
-		SellTrade trade = new SellTrade(op, items);
+		SellTrade trade = new SellTrade(p, items);
 		this.trades.put(trade.getId(), trade);
 		return trade.getId();
+	}
+	
+	/**
+	 * Accepts a bid.
+	 * @param p The player who is accepting the bid.
+	 * @param bidId The bid that they are accepting.
+	 * @return true if successful.
+	 * @throws TradeNotFoundException if there is no {@link ItemBid} with that ID.
+	 */
+	public boolean acceptBid(OfflinePlayer p, int bidId) throws TradeNotFoundException {
+		ItemBid b = getBid(bidId);
+		if(b == null) throw new TradeNotFoundException("This trade does not exist, or is not a bid.");
+		//TODO: Check if the given player is allowed to accept this bid.
+		TradeBase trade = getTrade(b.getParentId());
+		if(trade == null) {
+			throw new TradeNotFoundException("This bid's parent does not exist.");
+		}
+		if(trade.owner != p) {
+			// TODO: More meaningful error here
+			throw new java.lang.SecurityException("This user does not own the trade this bid was made on.");
+		}
+		if(!(trade instanceof SellTrade)) {
+			throw new java.lang.ClassCastException("The parent of this bid is not a SellTrade.");
+		}
+		SellTrade st = (SellTrade)trade;
+		deliverItems(p, b.getItems());
+		b.markAccepted();
+		// Reject all other bids
+		Iterator<Integer> i = st.getBids().iterator();
+		while(i.hasNext()) {
+			int nextBidId = i.next();
+			if(nextBidId == bidId) continue;
+			ItemBid rejected = getBid(nextBidId);
+			rejected.markRejected();
+			deliverItems(rejected.getOwner(), rejected.getItems());
+			
+		}
+		return true;
+	}
+	
+	public boolean rejectBid(OfflinePlayer p, int bidId) throws TradeNotFoundException {
+		ItemBid b = getBid(bidId);
+		if(b == null) throw new TradeNotFoundException("This trade does not exist, or is not a bid.");
+		//TODO: Check if the given player is allowed to reject this bid.
+		deliverItems(b.getOwner(), b.getItems());
+		b.markRejected();
+		return true;
+	}
+	
+	public boolean withdrawTrade(OfflinePlayer p, int tradeId) throws TradeNotFoundException {
+		return false;
 	}
 	
 	/**

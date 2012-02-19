@@ -1,5 +1,6 @@
 package net.lethargiclion.tradingpost;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +26,8 @@ public abstract class TradeBase implements ConfigurationSerializable {
 	}
 	
 	public List<ItemStack> getItems() {
-		return items;
+		// Return a read-only version of our items.
+		return Collections.unmodifiableList(items);
 	}
 	
 	public OfflinePlayer getOwner() {

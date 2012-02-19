@@ -141,7 +141,9 @@ public class CommandProcessor {
 		if(cmdargs[0].equalsIgnoreCase("bid")) {
 		    List<ItemStack> items = new ArrayList<ItemStack>();
 			items.add(p.getItemInHand());
-			ItemBid i = new ItemBid(p, items);
+			
+			// Creating bid on a non-existent trade - lucky this is just debug code
+			ItemBid i = new ItemBid(TradingPost.getManager().getNextId(), p, items, 0);
 			TradingPost.getManager().newBid(i);
 			p.sendMessage("A debug bid has been created.");
 		}

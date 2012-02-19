@@ -1,6 +1,7 @@
 package net.lethargiclion.tradingpost;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -18,45 +19,54 @@ import org.bukkit.inventory.ItemStack;
  */
 public class ItemBid extends TradeBase {
 	
+	int parentId;
+	
 	/**
 	 * Constructs a new ItemBid.
 	 * This particular constructor is designed to be used when the user actually makes a bid.
+	 * @param id The id that this bid should be given.
 	 * @param owner The user making the bid.
 	 * @param items The items that they are bidding.
+	 * @param parent The ID of the trade being bid upon.
 	 */
-	public ItemBid(OfflinePlayer owner, List<ItemStack> items) {
-		this(owner, items, TradingPost.getManager().getNextId(), new Date(), TradeStatus.open);
+	public ItemBid(int id, OfflinePlayer owner, List<ItemStack> items, int parent) {
+		this(owner, items, id, new Date(), TradeStatus.open, parent);
 	}
 	
 	/**
 	 * Constructs a new ItemBid.
 	 * This particular constructor is designed to be used for recreating a Bukkit-serialized ItemBid instance.
+	 * It is public so that it can be accessed during unit-testing.
 	 * @param owner The user making the bid.
 	 * @param items The items that they are bidding.
 	 * @param id The ID of this bid.
 	 * @param timestamp The time the bid was made.
 	 * @param status The current status of this bid.
+	 * @param parent The ID of the trade being bid upon.
 	 */
-	public ItemBid(OfflinePlayer owner, List<ItemStack> items, int id, Date timestamp, TradeStatus status) {
+	public ItemBid(OfflinePlayer owner, List<ItemStack> items, int id, Date timestamp, TradeStatus status, int parent) {
 		this.id = id;
 		this.owner = owner;
 		this.items = items; // Not a deep copy! What happens if the caller later edits their List?
 		this.timestamp = timestamp;
 		this.status = status;
+		this.parentId = parent;
 	}
 	
-	public void accept(OfflinePlayer accepter) {
+	public int getParentId() {
+		return parentId;
+	}
+	
+	public void markAccepted() {
+		// Silently ignore attempts to accept a bid that is not open.
+		if(status != TradeStatus.open) return;
 		status = TradeStatus.accepted;
-		TradingPost.getManager().deliverItems(accepter, items);
 	}
 	
-	public void reject() {
+	public void markRejected() {
+		// Silently ignore attempts to reject a bid that is not open.
+		if(status != TradeStatus.open) return;
 		status = TradeStatus.rejected;
-		TradingPost.getManager().deliverItems(owner, items);
-	}
-	
-	public TradeStatus getStatus() {
-		return status;
 	}
 	
 	/**
@@ -82,7 +92,9 @@ public class ItemBid extends TradeBase {
 		}*/
 		items = (List<ItemStack>)serial.get("items");
 		
-		return new ItemBid(owner, items, id, timestamp, status);
+		int parent = (Integer)serial.get("parent");
+		
+		return new ItemBid(owner, items, id, timestamp, status, parent);
 	}
 	
 	@Override
@@ -94,6 +106,7 @@ public class ItemBid extends TradeBase {
 		serial.put("owner", owner.getName());
 		serial.put("timestamp", timestamp);
 		serial.put("status", status.name());
+		serial.put("parent", parentId);
 		
 		// Serialize items
 		List<Map<String, Object>> itemstacks = new ArrayList<Map<String,Object>>();
