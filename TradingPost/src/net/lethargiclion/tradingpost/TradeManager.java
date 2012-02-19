@@ -185,7 +185,7 @@ public class TradeManager implements Listener {
 
 	public int makeTrade(OfflinePlayer p, List<ItemStack> items) {
 		
-		SellTrade trade = new SellTrade(p, items);
+		SellTrade trade = new SellTrade(getNextId(), p, items);
 		this.trades.put(trade.getId(), trade);
 		return trade.getId();
 	}

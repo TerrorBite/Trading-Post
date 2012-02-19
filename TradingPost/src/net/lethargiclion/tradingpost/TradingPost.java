@@ -33,10 +33,10 @@ public class TradingPost extends JavaPlugin {
 	 * Statically accessible for convenience.
 	 */
 	public static Logger log = Logger.getLogger("Minecraft");
+
+	private TradeManager manager;
 	
-	private static TradeManager manager = null;
-	
-	CommandProcessor processor = new CommandProcessor(log);
+	CommandProcessor processor;
 	
 	public TradingPost() {
 	}
@@ -55,6 +55,8 @@ public class TradingPost extends JavaPlugin {
 			// Start out by initializing the TradeManager.
 			manager = new TradeManager(this);
 		}
+		
+		processor = new CommandProcessor(log, manager);
 		
 		// Register events
 		getServer().getPluginManager().registerEvents(manager, this);
@@ -110,16 +112,6 @@ public class TradingPost extends JavaPlugin {
 		}
 		
 		return false;
-	}
-	
-	/**
-	 * Returns the current instance of the {@link TradeManager}.
-	 * This ensures that classes like {@link ItemBid} can always access the current TradeManager, since when they
-	 * are being deserialized by Bukkit they cannot be passed a reference to it via their constructor.
-	 * @return The current TradeManager instance.
-	 */
-	public static TradeManager getManager() {
-		return manager;
 	}
 
 }

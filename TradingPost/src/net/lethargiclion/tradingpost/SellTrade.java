@@ -23,12 +23,12 @@ public class SellTrade extends TradeBase {
 	List<Integer> bids;
 	int acceptedBidId;
 	
-	public SellTrade(OfflinePlayer p, List<ItemStack> items) {
-		this(p, items, TradingPost.getManager().getNextId(), new Date(),
+	public SellTrade(int id, OfflinePlayer p, List<ItemStack> items) {
+		this(id, p, items, new Date(),
 				TradeStatus.open, new ArrayList<Integer>());
 	}
 	
-	public SellTrade(OfflinePlayer p, List<ItemStack> items, int id,
+	public SellTrade(int id, OfflinePlayer p, List<ItemStack> items,
 			Date timestamp, TradeStatus status, List<Integer> bids) {
 		this.owner = p;
 		this.items = items;
@@ -63,9 +63,12 @@ public class SellTrade extends TradeBase {
 		// TODO: this is incomplete.
 		OfflinePlayer owner = Bukkit.getOfflinePlayer((String)serial.get("owner"));
 		
-		//Deserialize list of items. Actually this is now done for us by the parser.
+		int id = (Integer)serial.get("id");
+		
+		//Deserialize list of items.
 		List<ItemStack> items = new ArrayList<ItemStack>();
 		/*
+		 * Actually the following is now done for us by the parser.
 		@SuppressWarnings("unchecked")
 		List<Map<String, Object>> itemstacks = (ArrayList<Map<String,Object>>)serial.get("items");
 		Iterator<Map<String, Object>> i = itemstacks.iterator();
@@ -75,7 +78,7 @@ public class SellTrade extends TradeBase {
 		*/
 		items = (List<ItemStack>)serial.get("items");
 		
-		return new SellTrade(owner, items);
+		return new SellTrade(id, owner, items);
 	}
 	
 	@Override

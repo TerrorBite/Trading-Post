@@ -17,13 +17,15 @@ import org.bukkit.inventory.ItemStack;
 public class CommandProcessor {
 	
 	Logger log;
+	TradeManager manager;
 	
 	/**
 	 * Constructor.
 	 * @param log The logger to use for printing console messages.
 	 */
-	public CommandProcessor(Logger log) {
+	public CommandProcessor(Logger log, TradeManager mgr) {
 		this.log = log;
+		this.manager = mgr;
 	}
 	
 	/**
@@ -111,7 +113,7 @@ public class CommandProcessor {
 		itemList.add(items);
 		
 		// Create the trade
-		int tradeId = TradingPost.getManager().makeTrade(p, itemList);
+		int tradeId = manager.makeTrade(p, itemList);
 		
 		// Inform the user of success
 		p.sendMessage(String.format("Trade number %d has been created.", tradeId));
@@ -121,7 +123,7 @@ public class CommandProcessor {
 	}
 
 	private boolean cmdDeliver(Player p) {
-		switch(TradingPost.getManager().deliverQueued(p)) {
+		switch(manager.deliverQueued(p)) {
 		case NO_ITEMS:
 			p.sendMessage("There are no items to be delivered.");
 			break;
@@ -143,15 +145,15 @@ public class CommandProcessor {
 			items.add(p.getItemInHand());
 			
 			// Creating bid on a non-existent trade - lucky this is just debug code
-			ItemBid i = new ItemBid(TradingPost.getManager().getNextId(), p, items, 0);
-			TradingPost.getManager().newBid(i);
+			ItemBid i = new ItemBid(manager.getNextId(), p, items, 0);
+			manager.newBid(i);
 			p.sendMessage("A debug bid has been created.");
 		}
 		else if(cmdargs[0].equalsIgnoreCase("deliver")) {
 			List<ItemStack> items = new ArrayList<ItemStack>();
 			items.add(p.getItemInHand());
 			p.setItemInHand(new ItemStack(0));
-			TradingPost.getManager().deliverItems(p, items, true);
+			manager.deliverItems(p, items, true);
 			p.sendMessage("Your items will be returned to you later.");
 		}
 		else {
