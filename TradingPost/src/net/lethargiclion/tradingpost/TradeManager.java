@@ -16,6 +16,7 @@ import net.lethargiclion.tradingpost.QueuedItemDelivery.DeliveryResult;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -168,6 +169,12 @@ public enum TradeManager implements Listener {
 		return playerTrades;
 	}
 
+	public int makeTrade(OfflinePlayer op, List<ItemStack> items) {
+		
+		SellTrade trade = new SellTrade(op, items);
+		this.trades.put(trade.getId(), trade);
+		return trade.getId();
+	}
 	
 	/**
 	 * Convenience method for getting an ItemBid
@@ -255,7 +262,8 @@ public enum TradeManager implements Listener {
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) {
-		e.getPlayer().sendMessage("You have items waiting for you. Delivering them now.");
+		// Don't bother checking if this event is cancelled. Technically this is a chat event.
+		e.getPlayer().sendMessage("You have items waiting for you.");
 		this.deliverQueued(e.getPlayer());
 	}
 

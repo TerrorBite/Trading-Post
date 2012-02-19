@@ -35,6 +35,7 @@ public class CommandProcessor {
 		help,
 		commands,
 		deliver,
+		sell,
 		debug // TODO: Don't leave debug command in.
 		//TODO: Add full range of commands
 	}
@@ -86,6 +87,8 @@ public class CommandProcessor {
 			return cmdCommands(p);
 		case deliver:
 			return cmdDeliver(p);
+		case sell:
+			return cmdSell(p);
 		case debug:
 			return cmdDebug(p, cmdargs);
 		default:
@@ -96,6 +99,27 @@ public class CommandProcessor {
 		
 	}
 	
+	private boolean cmdSell(Player p) {
+		// Get the player's held item stack
+		ItemStack items = p.getItemInHand();
+		
+		// Set player's hand to empty
+		p.setItemInHand(new ItemStack(0));
+		
+		// makeTrade expects a List, so create a single-element ArrayList
+		List<ItemStack> itemList = new ArrayList<ItemStack>();
+		itemList.add(items);
+		
+		// Create the trade
+		int tradeId = TradingPost.getManager().makeTrade(p, itemList);
+		
+		// Inform the user of success
+		p.sendMessage(String.format("Trade number %d has been created.", tradeId));
+		p.sendMessage(String.format("You put %d %s up for sale.", items.getAmount(), items.getType().toString()));
+		
+		return true;
+	}
+
 	private boolean cmdDeliver(Player p) {
 		switch(TradingPost.getManager().deliverQueued(p)) {
 		case NO_ITEMS:
