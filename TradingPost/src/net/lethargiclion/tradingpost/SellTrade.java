@@ -104,5 +104,16 @@ public class SellTrade extends TradeBase {
 		
 		return serial;
 	}
+	
+	@Override
+	public int hashCode() {
+		Iterator<Integer> i = bids.iterator();
+		int bidhash = 0;
+		int n = bids.size();
+		while(i.hasNext()) {
+			bidhash += (int)(Math.pow(i.next().intValue()*31, --n));
+		}
+		return super.hashCode() ^ bidhash;
+	}
 
 }

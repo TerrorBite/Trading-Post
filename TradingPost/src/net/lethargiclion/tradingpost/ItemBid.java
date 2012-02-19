@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public class ItemBid extends TradeBase {
+public class ItemBid extends TradeBase implements Cloneable {
 	
 	int parentId;
 	
@@ -120,6 +120,11 @@ public class ItemBid extends TradeBase {
 		}
 		serial.put("items", itemstacks);
 		return serial;
+	}
+	
+	@Override
+	public int hashCode() {
+		return super.hashCode() + (this.parentId << 6);
 	}
 	
 }
