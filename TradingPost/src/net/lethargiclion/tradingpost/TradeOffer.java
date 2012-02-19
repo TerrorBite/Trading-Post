@@ -18,17 +18,17 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public class SellTrade extends TradeBase {
+public class TradeOffer extends TradeBase {
 	
 	List<Integer> bids;
 	int acceptedBidId;
 	
-	public SellTrade(int id, OfflinePlayer p, List<ItemStack> items) {
+	public TradeOffer(int id, OfflinePlayer p, List<ItemStack> items) {
 		this(id, p, items, new Date(),
 				TradeStatus.open, new ArrayList<Integer>());
 	}
 	
-	public SellTrade(int id, OfflinePlayer p, List<ItemStack> items,
+	public TradeOffer(int id, OfflinePlayer p, List<ItemStack> items,
 			Date timestamp, TradeStatus status, List<Integer> bids) {
 		this.owner = p;
 		this.items = items;
@@ -59,7 +59,7 @@ public class SellTrade extends TradeBase {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static SellTrade deserialize(Map<String, Object> serial) {
+	public static TradeOffer deserialize(Map<String, Object> serial) {
 		// TODO: this is incomplete.
 		OfflinePlayer owner = Bukkit.getOfflinePlayer((String)serial.get("owner"));
 		
@@ -78,7 +78,7 @@ public class SellTrade extends TradeBase {
 		*/
 		items = (List<ItemStack>)serial.get("items");
 		
-		return new SellTrade(id, owner, items);
+		return new TradeOffer(id, owner, items);
 	}
 	
 	@Override

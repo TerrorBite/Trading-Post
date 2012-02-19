@@ -185,7 +185,7 @@ public class TradeManager implements Listener {
 
 	public int makeTrade(OfflinePlayer p, List<ItemStack> items) {
 		
-		SellTrade trade = new SellTrade(getNextId(), p, items);
+		TradeOffer trade = new TradeOffer(getNextId(), p, items);
 		this.trades.put(trade.getId(), trade);
 		return trade.getId();
 	}
@@ -209,10 +209,10 @@ public class TradeManager implements Listener {
 			// TODO: More meaningful error here
 			throw new java.lang.SecurityException("This user does not own the trade this bid was made on.");
 		}
-		if(!(trade instanceof SellTrade)) {
-			throw new java.lang.ClassCastException("The parent of this bid is not a SellTrade.");
+		if(!(trade instanceof TradeOffer)) {
+			throw new java.lang.ClassCastException("The parent of this bid is not a TradeOffer.");
 		}
-		SellTrade st = (SellTrade)trade;
+		TradeOffer st = (TradeOffer)trade;
 		deliverItems(p, b.getItems());
 		b.markAccepted();
 		// Reject all other bids
