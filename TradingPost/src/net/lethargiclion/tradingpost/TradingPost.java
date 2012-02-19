@@ -34,28 +34,50 @@ public class TradingPost extends JavaPlugin {
 	 */
 	public static Logger log = Logger.getLogger("Minecraft");
 	
+	private static TradeManager manager = null;
+	
 	CommandProcessor processor = new CommandProcessor(log);
 	
 	public TradingPost() {
 	}
 	
+	/**
+	 * Called when the TradeManager plugin is enabled.
+	 * This takes care of initializing the TradeManager.
+	 */
+	@Override
 	public void onEnable() {
-		// Start out by initializing the TradeManager.
-		getManager().initialize(this);
+		if(manager != null && manager instanceof TradeManager) {
+			log.warning("[TradingPost] The TradeManager is already initialized.");
+			manager.deserialize();
+		}
+		else {
+			// Start out by initializing the TradeManager.
+			manager = new TradeManager(this);
+		}
 		
 		// Register events
-		getServer().getPluginManager().registerEvents(getManager(), this);
+		getServer().getPluginManager().registerEvents(manager, this);
 		
 		log.info("[TradingPost] Successfully enabled.");
 	}
-	 
+	
+	/**
+	 * Called when the plugin is disabled.
+	 * This takes care of shutting down the TradeManager properly.
+	 */
+	@Override
 	public void onDisable() {
-		getManager().serialize();
+		manager.serialize();
+		manager = null;
 		log.info("[TradingPost] Successfully disabled. Have a nice day!.");
 	}
 	
+	/**
+	 * Called when a command specified in plugin.yml is run by a user.
+	 */
+	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		
 		
 		if(cmd.getName().equalsIgnoreCase("tr")) {
 			// If we didn't get a subcommand, fail and show usage message
@@ -97,7 +119,7 @@ public class TradingPost extends JavaPlugin {
 	 * @return The current TradeManager instance.
 	 */
 	public static TradeManager getManager() {
-		return TradeManager.INSTANCE;
+		return manager;
 	}
 
 }

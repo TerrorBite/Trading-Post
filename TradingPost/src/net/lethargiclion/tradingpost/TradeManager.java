@@ -16,7 +16,6 @@ import net.lethargiclion.tradingpost.QueuedItemDelivery.DeliveryResult;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -27,8 +26,7 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public enum TradeManager implements Listener {
-	INSTANCE;
+public class TradeManager implements Listener {
 	
 	/**
 	 * Holds the parent TradingPost instance.
@@ -65,11 +63,27 @@ public enum TradeManager implements Listener {
 		return plugin;
 	}
 	
-	public void initialize(TradingPost plugin) {
-		this.plugin = plugin;
-		deserialize();
+	/**
+	 * Constructs a new TradeManager instance.
+	 * @param plugin The parent TradingPost plugin.
+	 */
+	public TradeManager(TradingPost plugin) {
+		this(plugin, false);
 	}
 	
+	/**
+	 * Constructs a new TradeManager instance.
+	 * @param plugin The parent TradingPost plugin.
+	 * @param defer Should we defer initialization until later?
+	 */
+	public TradeManager(TradingPost plugin, boolean defer) {
+		this.plugin = plugin;
+		if(!defer) deserialize();
+	}
+	
+	/**
+	 * Loads the stored Trading Post data from the YAML file on disk.
+	 */
 	public void deserialize() {
 		if(tradeStorageConfig == null) loadStorage();
 		
