@@ -36,10 +36,21 @@ public abstract class GenericOffer extends GenericTrade {
 		return Collections.unmodifiableCollection(bids);
 	}
 	
+	/**
+	 * Adds the given bid's ID to the list of bid IDs on this offer.<br>
+	 * Only bids whose parent is set to this bid's ID may be added.
+	 * @throws AssertionError if the bid's parent ID is not the ID of this offer.
+	 * @param bid The bid whose ID should be added.
+	 */
 	public void addBid(GenericBid bid) {
+		assert(bid.getParentId() == id);
 		bids.add(bid.getId());
 	}
 	
+	/**
+	 * Gets the ID of the bid that was accepted on this offer, if any.
+	 * @return The ID of the bid that was accepted on this offer, or -1 if no bid has been accepted yet.
+	 */
 	public int getAcceptedBidId() {
 		return acceptedBidId;
 	}
