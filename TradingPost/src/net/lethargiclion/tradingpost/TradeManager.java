@@ -21,7 +21,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Singleton class for managing trades.
+ * Class for managing trades.
  * @author TerrorBite
  *
  */
@@ -34,33 +34,8 @@ public class TradeManager implements Listener {
 	
 	private TradeStorage storage = null;
 	
-	/**
-	 * Holds all the trades, bids, etc.
-	 */
-	//Map<Integer, TradeBase> trades;
-	
-	/**
-	 * Holds the pending item deliveries.
-	 */
-	//Collection<QueuedItemDelivery> queuedDeliveries;
-	
-	/**
-	 * Holds the last-used ID value, to enable auto-incrementing ID values.
-	 */
-	//private int currentId;
-	
 	private FileConfiguration tradeStorageConfig = null;
 	private File tradeStorageFile = null;
-	
-	/**
-	 * Plugin accessor function. This ensures that classes like ItemBid that only know
-	 * about their TradeManager can access the main plugin instance if they need to.
-	 * @return The main plugin instance.
-	 */
-	//NOTE: is this really needed?
-	public TradingPost getPlugin() {
-		return plugin;
-	}
 	
 	/**
 	 * Constructs a new TradeManager instance.
@@ -170,18 +145,30 @@ public class TradeManager implements Listener {
 		}
 		
 	    try {
+	    	// Attempt to write changed config to disk
 	        tradeStorageConfig.save(tradeStorageFile);
 	    } catch (IOException ex) {
 	        TradingPost.log.log(Level.SEVERE, "Could not persist storage to " + tradeStorageFile, ex);
 	    }
 	}
 	
+	/**
+	 * Retrieves a trade from the storage.
+	 * @param tradeId The ID of the trade to retrieve.
+	 * @return The trade with the given ID.
+	 * @throws TradeNotFoundException if there is no trade with that ID.
+	 */
 	public TradeBase getTrade(int tradeId) throws TradeNotFoundException {
 		return storage.getTrade(tradeId);
 	}
 
+	/**
+	 * Creates a new TradeOffer with the given player selling the given items.
+	 * @param p The player creating the TradeOffer.
+	 * @param items The items they are offering for trade.
+	 * @return the ID of the newly created trade.
+	 */
 	public int makeTrade(OfflinePlayer p, List<ItemStack> items) {
-		
 		TradeOffer trade = new TradeOffer(storage.getNextId(), p, items);
 		storage.addTrade(trade);
 		return trade.getId();
@@ -225,6 +212,13 @@ public class TradeManager implements Listener {
 		return true;
 	}
 	
+	/**
+	 * Rejects a bid.
+	 * @param p The player who is rejecting a bid.
+	 * @param bidId The bid they are rejecting.
+	 * @return True if succesful.
+	 * @throws TradeNotFoundException if there is no bid by this ID.
+	 */
 	public boolean rejectBid(OfflinePlayer p, int bidId) throws TradeNotFoundException {
 		ItemBid b = getBid(bidId);
 		if(b == null) throw new TradeNotFoundException("This trade does not exist, or is not a bid.");
@@ -234,6 +228,13 @@ public class TradeManager implements Listener {
 		return true;
 	}
 	
+	/**
+	 * Withdraws a trade. Not yet implemented.
+	 * @param p The player withdrawing a trade.
+	 * @param tradeId The ID of the trade they are withdrawing.
+	 * @return True if successful.
+	 * @throws TradeNotFoundException if there is no trade by this ID.
+	 */
 	public boolean withdrawTrade(OfflinePlayer p, int tradeId) throws TradeNotFoundException {
 		return false;
 	}
