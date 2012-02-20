@@ -1,5 +1,6 @@
 package net.lethargiclion.tradingpost;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -19,10 +20,37 @@ public abstract class GenericOffer extends GenericTrade {
 
 	public GenericOffer(Map<String, Object> serialData) throws InstantiationException {
 		super(serialData);
+		
+		// Get Accepted Bid ID for this trade.
+		try {
+			Integer accepted = (Integer)serialData.get("acceptedBid");
+			// If there's no acceptedBid in the serial data, assume -1
+			this.acceptedBidId = (accepted == null) ? -1 : accepted;
+		} catch(ClassCastException ex) {
+			throw new InstantiationException("Cannot deserialize: \"acceptedBid\" is not an Integer.");
+		}
+		
+		// Get list of bids made against this trade.
+		Collection<?> bidlist = null;
+		try {
+			bidlist = (Collection<?>)serialData.get("bids");
+		} catch(ClassCastException ex) {
+			throw new InstantiationException("Cannot deserialize: \"bids\" is not a Collection.");
+		}
+		
+		// Check type of each element.
+		this.bids = new ArrayList<Integer>();
+		for(Object i: bidlist) {
+			// Ignore any elements that are not Integers.
+			if(i instanceof Integer) {
+				this.bids.add((Integer)i);
+			}
+		}
 	}
 	
 	public GenericOffer(int id, OfflinePlayer p, Collection<ItemStack> items) {
 		super(id, p, items);
+		this.bids = new ArrayList<Integer>();
 	}
 
 	Collection<Integer> bids;
@@ -81,7 +109,11 @@ public abstract class GenericOffer extends GenericTrade {
 		
 		// Add list of bid IDs.
 		serial.put("bids", this.bids);
-		serial.put("acceptedBid", this.acceptedBidId);
+		
+		// Add accepted bid ID only if not -1
+		if(this.acceptedBidId >= 0) {
+			serial.put("acceptedBid", this.acceptedBidId);
+		}
 		
 		// Return data. Subclasses can continue to add their own custom data.
 		return serial;

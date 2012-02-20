@@ -1,6 +1,5 @@
 package net.lethargiclion.tradingpost;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -18,7 +17,6 @@ public class TradeOffer extends GenericOffer {
 	
 	public TradeOffer(int id, OfflinePlayer p, Collection<ItemStack> items) {
 		super(id, p, items);
-		this.bids = new ArrayList<Integer>();
 	}
 	
 	public TradeOffer(Map<String, Object> serialData) throws InstantiationException {
