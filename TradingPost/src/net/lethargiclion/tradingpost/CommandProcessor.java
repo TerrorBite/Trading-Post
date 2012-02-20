@@ -34,11 +34,12 @@ public class CommandProcessor {
 	 *
 	 */
 	public enum TPCommand {
-		help,
-		commands,
-		deliver,
-		sell,
-		debug // TODO: Don't leave debug command in.
+		// Enum constants need to be named 
+		HELP,
+		COMMANDS,
+		DELIVER,
+		SELL,
+		DEBUG // TODO: Don't leave debug command in.
 		//TODO: Add full range of commands
 	}
 	
@@ -51,7 +52,7 @@ public class CommandProcessor {
 	 */
 	public TPCommand getCommand(String command) throws CommandNotFoundException {
 		TPCommand cmd;
-		try { cmd = TPCommand.valueOf(command); }
+		try { cmd = TPCommand.valueOf(command.toUpperCase()); }
 		catch(IllegalArgumentException e) {
 			throw new CommandNotFoundException("No such command");
 		}
@@ -83,15 +84,15 @@ public class CommandProcessor {
 		
 		// Execute the requested command
 		switch(cmd) {
-		case help:
+		case HELP:
 			return cmdHelp(p, cmdargs);
-		case commands:
+		case COMMANDS:
 			return cmdCommands(p);
-		case deliver:
+		case DELIVER:
 			return cmdDeliver(p);
-		case sell:
+		case SELL:
 			return cmdSell(p);
-		case debug:
+		case DEBUG:
 			return cmdDebug(p, cmdargs);
 		default:
 			p.sendMessage("Sorry, this command has not yet been implemented.");
@@ -194,24 +195,24 @@ public class CommandProcessor {
 		
 		// Provide the correct messages for the requested command
 		switch(cmd) {
-		case help:
+		case HELP:
 			usage = "help <command>";
 			info = "Provides information on how to use TradingPost commands.";
 			break;
-		case commands:
+		case COMMANDS:
 			usage = "commands";
 			info = "Shows a list of available TradingPost commands.";
 			break;
-		case deliver:
+		case DELIVER:
 			usage = "deliver";
 			info = "Causes TradingPost to attempt redelivery of any waiting items.";
-		case debug:
+		case DEBUG:
 			// TODO: Don't leave this in.
 			usage = "debug <feature>";
 			info = "Debugging command for developer use.";
 		default:
 			usage = cmd.name();
-			info = "Sorry, there is no help available for this command.";
+			info = "Sorry, there is no help available for this command yet.";
 		}
 		
 		// Send usage message
