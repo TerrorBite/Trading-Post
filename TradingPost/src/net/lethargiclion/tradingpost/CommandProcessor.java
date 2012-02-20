@@ -140,16 +140,7 @@ public class CommandProcessor {
 	private boolean cmdDebug(Player p, String[] cmdargs) {
 		
 		// Temporary debugging stuff.
-		if(cmdargs[0].equalsIgnoreCase("bid")) {
-		    List<ItemStack> items = new ArrayList<ItemStack>();
-			items.add(p.getItemInHand());
-			
-			// Creating bid on a non-existent trade - lucky this is just debug code
-			ItemBid i = new ItemBid(manager.getNextId(), p, items, 0);
-			manager.newBid(i);
-			p.sendMessage("A debug bid has been created.");
-		}
-		else if(cmdargs[0].equalsIgnoreCase("deliver")) {
+		if(cmdargs[0].equalsIgnoreCase("deliver")) {
 			List<ItemStack> items = new ArrayList<ItemStack>();
 			items.add(p.getItemInHand());
 			p.setItemInHand(new ItemStack(0));
