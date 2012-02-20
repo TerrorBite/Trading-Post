@@ -94,7 +94,7 @@ public class TradeManager implements Listener {
 	}
 	
 	/**
-	 * Internal function for loading persistance data from disk into a {@link FileConfiguration} object.
+	 * (Internal) Loads persistance data from disk into a {@link FileConfiguration} object.
 	 */
 	private void loadStorage() {
 		if(tradeStorageFile == null) {
@@ -116,7 +116,7 @@ public class TradeManager implements Listener {
 	}
 	
 	/**
-	 * Internal function for saving the {@link FileConfiguration} to disk.
+	 * (Internal) Saves the {@link FileConfiguration} to disk.<br>
 	 * Also makes a backup of the previous file.
 	 */
 	private void saveStorage() {
@@ -225,9 +225,9 @@ public class TradeManager implements Listener {
 	}
 	
 	/**
-	 * (Internal) Rejects a bid.
+	 * (Internal) Rejects a bid, returning the items held to their owner.
 	 * @param p The player who is rejecting a bid.
-	 * @param rejectedBid The bid that is being rejected..
+	 * @param rejectedBid The bid that is being rejected.
 	 */
 	private void rejectBid(GenericBid rejectedBid) {
 		// Change bid status to rejected
@@ -238,7 +238,7 @@ public class TradeManager implements Listener {
 	}
 	
 	/**
-	 * Withdraws a trade. Not yet implemented.
+	 * Withdraws a trade, returning the items held to their owner.
 	 * @param p The player withdrawing a trade.
 	 * @param tradeId The ID of the trade they are withdrawing.
 	 * @return True if successful.ID.
@@ -250,6 +250,8 @@ public class TradeManager implements Listener {
 		trade.markWithdrawn();
 		returnItems(trade);
 		
+		// If this is an offer, then we need to reject all bids
+		// so that the items go back to their owners.
 		if(trade instanceof GenericOffer) {
 			GenericOffer offer = (GenericOffer)trade;
 			// Reject all bids on this offer
@@ -305,7 +307,7 @@ public class TradeManager implements Listener {
 	}
 	
 	/**
-	 * Delivers the items held by this trade back to their original owner.
+	 * (Internal) Delivers the items held by this trade back to their original owner.
 	 * @param trade The trade to process.
 	 */
 	private void returnItems(GenericTrade trade) {
@@ -313,7 +315,7 @@ public class TradeManager implements Listener {
 	}
 	
 	/**
-	 * Performs the work of delivering items to their new owners.
+	 * (Internal) Performs the work of delivering items to their new owners.
 	 * @param trade The trade to process.
 	 */
 	@SuppressWarnings("unused")
@@ -328,7 +330,7 @@ public class TradeManager implements Listener {
 	}
 	
 	/**
-	 * Delivers the items from each trade to the other trade's owner.
+	 * (Internal) Delivers the items from each trade to the other trade's owner.
 	 * @param first One of the trades.
 	 * @param second The other trade.
 	 */

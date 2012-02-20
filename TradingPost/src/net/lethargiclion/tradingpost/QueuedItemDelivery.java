@@ -72,7 +72,7 @@ public class QueuedItemDelivery implements ConfigurationSerializable {
 	 * @return A {@link DeliveryResult} that describes the result of the delivery attempt.
 	 */
 	public DeliveryResult deliver() {
-		// If items is null, then the items have already been delivered successfully..
+		// If items is null, then the items have already been delivered successfully.
 		if(items == null) return DeliveryResult.NO_ITEMS;
 		
 		// If our target is offline, we cannot deliver to them.
