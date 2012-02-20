@@ -36,8 +36,12 @@ public abstract class GenericOffer extends GenericTrade {
 		return Collections.unmodifiableCollection(bids);
 	}
 	
-	public void addBid(ItemBid bid) {
+	public void addBid(GenericBid bid) {
 		bids.add(bid.getId());
+	}
+	
+	public int getAcceptedBidId() {
+		return acceptedBidId;
 	}
 	
 	/**

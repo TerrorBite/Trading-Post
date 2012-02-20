@@ -1,5 +1,6 @@
 package net.lethargiclion.tradingpost;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public class ItemBid extends GenericBid implements Cloneable {
+public class ItemBid extends GenericBid {
 	
 	/**
 	 * Constructs a new ItemBid.
@@ -21,7 +22,7 @@ public class ItemBid extends GenericBid implements Cloneable {
 	 * @param items The items that they are bidding.
 	 * @param parent The ID of the trade being bid upon.
 	 */
-	public ItemBid(int id, OfflinePlayer owner, List<ItemStack> items, int parent) {
+	public ItemBid(int id, OfflinePlayer owner, Collection<ItemStack> items, int parent) {
 		super(id, owner, items, parent);
 	}
 	

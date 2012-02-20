@@ -22,7 +22,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
 /**
- * Class for managing trades.
+ * The TradeManager is responsible for keeping track of trades in progress.
+ * It takes care of altering the status of trades and delivering items to players.
  * @author TerrorBite
  *
  */
@@ -83,6 +84,9 @@ public class TradeManager implements Listener {
 		
 	}
 	
+	/**
+	 * Stores the Trading Post data onto disk for later retrieval.
+	 */
 	public void serialize() {
 		if(storage == null) throw new IllegalStateException("Can't serialize with a null storage object!");
 		if(tradeStorageConfig == null) loadStorage();
@@ -91,8 +95,10 @@ public class TradeManager implements Listener {
 		TradingPost.log.info("[TradingPost] TradeManager: Successfully saved trading data.");
 	}
 	
+	/**
+	 * Internal function for loading persistance data from disk into a {@link FileConfiguration} object.
+	 */
 	private void loadStorage() {
-		if(plugin == null) throw new IllegalStateException("loadStorage() was called before the TradeManager was initialized!");
 		if(tradeStorageFile == null) {
 			tradeStorageFile = new File(plugin.getDataFolder(), "storage.yml");
 		}
@@ -111,6 +117,10 @@ public class TradeManager implements Listener {
 	    }
 	}
 	
+	/**
+	 * Internal function for saving the {@link FileConfiguration} to disk.
+	 * Also makes a backup of the previous file.
+	 */
 	private void saveStorage() {
 		if (tradeStorageConfig == null || tradeStorageFile == null) {
 			// Don't save if there is nothing to save
@@ -164,15 +174,25 @@ public class TradeManager implements Listener {
 	}
 
 	/**
-	 * Creates a new TradeOffer with the given player selling the given items.
+	 * Creates a new TradeOffer with the given player selling the given items.<br>
+	 * <br>
+	 * This is a convenience function as it does not allow the flexibility
+	 * to add custom implementations of GenericOffer.
 	 * @param p The player creating the TradeOffer.
 	 * @param items The items they are offering for trade.
 	 * @return the ID of the newly created trade.
 	 */
-	public int makeTrade(OfflinePlayer p, List<ItemStack> items) {
-		TradeOffer trade = new TradeOffer(storage.getNextId(), p, items);
+	public int makeOffer(OfflinePlayer p, Collection<ItemStack> items) {
+		GenericOffer trade = new TradeOffer(storage.getNextId(), p, items);
 		storage.addTrade(trade);
 		return trade.getId();
+	}
+	
+	public int makeBid(OfflinePlayer p, Collection<ItemStack> items, GenericOffer offer) {
+		GenericBid bid = new ItemBid(storage.getNextId(), p, items, offer.getId());
+		offer.addBid(bid);
+		storage.addTrade(bid);
+		return bid.getId();
 	}
 	
 	/**
@@ -182,86 +202,141 @@ public class TradeManager implements Listener {
 	 * @return true if successful.
 	 * @throws TradeNotFoundException if there is no {@link ItemBid} with that ID.
 	 */
-	public boolean acceptBid(OfflinePlayer p, int bidId) throws TradeNotFoundException {
-		ItemBid b = getBid(bidId);
-		if(b == null) throw new TradeNotFoundException("This trade does not exist, or is not a bid.");
-		//TODO: Check if the given player is allowed to accept this bid.
-		GenericTrade trade = getTrade(b.getParentId());
-		if(trade == null) {
-			throw new TradeNotFoundException("This bid's parent does not exist.");
+	public boolean acceptBid(OfflinePlayer p, GenericBid winningBid) throws TradeNotFoundException {
+		if(winningBid.getStatus() != TradeStatus.open) {
+			throw new IllegalStateException("Only bids in an open state can be accepted.");
 		}
-		if(trade.owner != p) {
-			// TODO: More meaningful error here
+		GenericOffer offer = getOffer(winningBid.getParentId());
+		if(offer.owner != p) {
 			throw new java.lang.SecurityException("This user does not own the trade this bid was made on.");
 		}
-		if(!(trade instanceof TradeOffer)) {
-			throw new java.lang.ClassCastException("The parent of this bid is not a TradeOffer.");
-		}
-		TradeOffer st = (TradeOffer)trade;
-		deliverItems(p, b.getItems());
-		b.markAccepted();
+		
+		// Mark winning bid as accepted
+		winningBid.markAccepted();
+		offer.markAccepted(winningBid.getId());
+		
+		// Exchange items
+		exchangeItems(offer, winningBid);
+		
 		// Reject all other bids
-		Iterator<Integer> i = st.getBids().iterator();
-		while(i.hasNext()) {
-			int nextBidId = i.next();
-			if(nextBidId == bidId) continue;
-			ItemBid rejected = getBid(nextBidId);
-			rejected.markRejected();
-			deliverItems(rejected.getOwner(), rejected.getItems());
-			
+		for(int i: offer.getBids()) {
+			if(i == winningBid.getId()) continue;
+			rejectBid(getBid(i));
 		}
 		return true;
 	}
 	
 	/**
-	 * Rejects a bid.
+	 * (Internal) Rejects a bid.
 	 * @param p The player who is rejecting a bid.
-	 * @param bidId The bid they are rejecting.
-	 * @return True if succesful.
-	 * @throws TradeNotFoundException if there is no bid by this ID.
+	 * @param rejectedBid The bid that is being rejected..
 	 */
-	public boolean rejectBid(OfflinePlayer p, int bidId) throws TradeNotFoundException {
-		ItemBid b = getBid(bidId);
-		if(b == null) throw new TradeNotFoundException("This trade does not exist, or is not a bid.");
-		//TODO: Check if the given player is allowed to reject this bid.
-		deliverItems(b.getOwner(), b.getItems());
-		b.markRejected();
-		return true;
+	private void rejectBid(GenericBid rejectedBid) {
+		// Change bid status to rejected
+		rejectedBid.markRejected();
+		
+		// Return items to owner
+		returnItems(rejectedBid);
 	}
 	
 	/**
 	 * Withdraws a trade. Not yet implemented.
 	 * @param p The player withdrawing a trade.
 	 * @param tradeId The ID of the trade they are withdrawing.
-	 * @return True if successful.
-	 * @throws TradeNotFoundException if there is no trade by this ID.
+	 * @return True if successful.ID.
 	 */
-	public boolean withdrawTrade(OfflinePlayer p, int tradeId) throws TradeNotFoundException {
+	public boolean withdrawTrade(OfflinePlayer p, GenericTrade trade) {
+		if(p != trade.getOwner()) {
+			throw new SecurityException("This user does not own the trade.");
+		}
+		trade.markWithdrawn();
+		returnItems(trade);
+		
+		if(trade instanceof GenericOffer) {
+			GenericOffer offer = (GenericOffer)trade;
+			// Reject all bids on this offer
+			for(int i: offer.getBids()) {
+				try {
+					rejectBid(getBid(i));
+				} catch (TradeNotFoundException e) {
+					continue;
+				}
+			}
+		}
 		return false;
 	}
 	
 	/**
-	 * Convenience method for getting an ItemBid
+	 * Returns a bid by the given ID.
 	 * @param bidId The ID of the bid to return.
 	 * @return The requested ItemBid, or null if there is no ItemBid with that ID.
 	 * @throws TradeNotFoundException 
 	 */
-	public ItemBid getBid(int bidId) throws TradeNotFoundException {
-		GenericTrade t = getTrade(bidId);
-		if(t instanceof ItemBid) {
-			return (ItemBid)t;
+	public GenericBid getBid(int bidId) throws TradeNotFoundException {
+		GenericTrade t = storage.getTrade(bidId);
+		if(t instanceof GenericBid) {
+			return (GenericBid)t;
 		}
-		return null;
+		throw new TradeNotFoundException("The given trade ID is not the ID of a bid.");
+	}
+	
+	/**
+	 * Returns a bid by the given ID.
+	 * @param bidId The ID of the bid to return.
+	 * @return The requested ItemBid, or null if there is no ItemBid with that ID.
+	 * @throws TradeNotFoundException 
+	 */
+	public GenericOffer getOffer(int offerId) throws TradeNotFoundException {
+		GenericTrade t = storage.getTrade(offerId);
+		if(t instanceof GenericOffer) {
+			return (GenericOffer)t;
+		}
+		throw new TradeNotFoundException("The given trade ID is not the ID of an offer.");
 	}
 	
 	/**
 	 * Delivers items to a player. The items will be delivered immediately if
 	 * the player is online.
-	 * @param p The player to deliver to.
-	 * @param collection The items to deliver.
+	 * @param p The player to deliver these items to.
+	 * @param collection The items to be delivered.
+	 * @return {@code true} if the items were delivered immediately,
+	 * or {@code false} if the items were queued instead.
 	 */
-	public void deliverItems(OfflinePlayer p, Collection<ItemStack> collection) {
-		deliverItems(p, collection, false);
+	public boolean deliverItems(OfflinePlayer p, Collection<ItemStack> collection) {
+		return deliverItems(p, collection, false);
+	}
+	
+	/**
+	 * Delivers the items held by this trade back to their original owner.
+	 * @param trade The trade to process.
+	 */
+	private void returnItems(GenericTrade trade) {
+		deliverItems(trade.getOwner(), trade.getItems());
+	}
+	
+	/**
+	 * Performs the work of delivering items to their new owners.
+	 * @param trade The trade to process.
+	 */
+	@SuppressWarnings("unused")
+	private void exchangeItems(GenericOffer trade) {
+		GenericBid winningBid = null;
+		try {
+			winningBid = getBid(trade.getAcceptedBidId());
+		} catch (TradeNotFoundException e) {
+			return;
+		}
+		exchangeItems(trade, winningBid);
+	}
+	
+	/**
+	 * Delivers the items from each trade to the other trade's owner.
+	 * @param first One of the trades.
+	 * @param second The other trade.
+	 */
+	private void exchangeItems(GenericTrade first, GenericTrade second) {
+		deliverItems(first.getOwner(), second.getItems());
+		deliverItems(second.getOwner(), first.getItems());
 	}
 	
 	/**
@@ -292,44 +367,32 @@ public class TradeManager implements Listener {
 	}
 	
 	/**
-	 * Attempts to deliver all pending items to the given player.
-	 * @param p The player to deliver to.
-	 * @returns true if items were delivered.
+	 * Convenience method that calls the {@code deliverQueued()} method
+	 * of this TradeManager's {@link TradeStorage} instance.<br>
+	 * <br>Attempts to deliver all pending items to the given player.
+	 * @see TradeStorage
+	 * @param p The {@link OfflinePlayer} whose queued items should be delivered.
+	 * @return A {@link DeliveryResult} describing the result of the delivery attempt.
 	 */
 	public DeliveryResult deliverQueued(OfflinePlayer p) {
-		if(!p.isOnline()) {
-			return DeliveryResult.PLAYER_OFFLINE;
-		}
-		DeliveryResult state = DeliveryResult.SUCCESS;
-		Iterator<QueuedItemDelivery> i = storage.getDeliveryIterator();
-		// If there are no items to be delivered, return appropriate status
-		if(!i.hasNext()) return DeliveryResult.NO_ITEMS;
-		while(i.hasNext()) {
-			QueuedItemDelivery delivery = i.next();
-			if(delivery.getTarget().equals(p)) {
-				// Attempt delivery of items.
-				if(delivery.deliver() == DeliveryResult.SUCCESS) {
-					// Remove pending delivery if it was successful.
-					i.remove();
-				}
-				else state = DeliveryResult.NOT_ENOUGH_SPACE;
-			}
-		}
-		return state;
-	}
-
-	@Deprecated
-	public void newBid(ItemBid i) {
-		// TODO: This should add a bid TO a trade, not just on its own.
-		// This is currently just for debugging.
-		storage.addTrade(i);
+		return storage.deliverQueued(p);
 	}
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		// Don't bother checking if this event is cancelled. Technically this is a chat event.
-		e.getPlayer().sendMessage("You have items waiting for you.");
-		this.deliverQueued(e.getPlayer());
+		DeliveryResult result = storage.deliverQueued(e.getPlayer());
+		switch(result) {
+		case SUCCESS:
+			e.getPlayer().sendMessage("[TradingPost] You have just recieved items from a trade!");
+			break;
+		case NOT_ENOUGH_SPACE:
+			e.getPlayer().sendMessage("[TradingPost] You have received items from a trade, but your inventory is full.");
+			e.getPlayer().sendMessage("Clear some inventory space, then type /tr deliver to receive the rest of your items.");
+			break;
+		default: // NO_ITEMS, or PLAYER_OFFLINE
+			break; // do nothing
+		}
 	}
 
 }

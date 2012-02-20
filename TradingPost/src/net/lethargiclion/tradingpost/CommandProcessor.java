@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -105,16 +106,20 @@ public class CommandProcessor {
 	private boolean cmdSell(Player p) {
 		// Get the player's held item stack
 		ItemStack items = p.getItemInHand();
+		if(items.getType() == Material.AIR) {
+			p.sendMessage("Your hand is empty. Nothing to sell - no trade created.");
+			return true;
+		}
 		
 		// Set player's hand to empty
-		p.setItemInHand(new ItemStack(0));
+		p.setItemInHand(new ItemStack(Material.AIR));
 		
 		// makeTrade expects a List, so create a single-element ArrayList
 		List<ItemStack> itemList = new ArrayList<ItemStack>();
 		itemList.add(items);
 		
 		// Create the trade
-		int tradeId = manager.makeTrade(p, itemList);
+		int tradeId = manager.makeOffer(p, itemList);
 		
 		// Inform the user of success
 		p.sendMessage(String.format("Trade number %d has been created.", tradeId));

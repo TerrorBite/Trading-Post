@@ -18,6 +18,11 @@ import org.bukkit.inventory.ItemStack;
  */
 public class QueuedItemDelivery implements ConfigurationSerializable {
 	
+	/**
+	 * This enum provices a range of values which describe the result of an attempt to deliver items to a player.
+	 * @author TerrorBite
+	 *
+	 */
 	public enum DeliveryResult {
 		/**
 		 * No items could be delivered because the player is not online.
@@ -61,13 +66,13 @@ public class QueuedItemDelivery implements ConfigurationSerializable {
 	}
 	
 	/**
-	 * Attempts to deliver the items to the target player.
-	 * If all items were delivered successfully, this method will return true.
-	 * This instance should then be removed from any list of pending deliveries.
-	 * @return True if all items were successfully delivered, otherwise false.
+	 * Attempts to deliver the items to the target {@link OfflinePlayer}.<br>
+	 * If all items were delivered successfully, this method will return {@link DeliveryResult.SUCCESS}.
+	 * This instance should then be removed from any list of pending deliveries of which it is a member.
+	 * @return A {@link DeliveryResult} that describes the result of the delivery attempt.
 	 */
 	public DeliveryResult deliver() {
-		// If items is null, then the items have already been delivered successfully.
+		// If items is null, then the items have already been delivered successfully..
 		if(items == null) return DeliveryResult.NO_ITEMS;
 		
 		// If our target is offline, we cannot deliver to them.

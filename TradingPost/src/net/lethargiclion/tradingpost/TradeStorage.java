@@ -12,24 +12,31 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
+import net.lethargiclion.tradingpost.QueuedItemDelivery.DeliveryResult;
+
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 /**
- * An automatically serializable class designed to store TradingPost data.
+ * A {@link ConfigurationSerializable} class which stores TradingPost data.<br>
+ * An instance of TradeStorage is responsible for maintaining the data structures
+ * which hold the trading data, and for returning the correct trade when called upon.
  * @author TerrorBite
  *
  */
 public class TradeStorage implements ConfigurationSerializable {
 	
+	// Debug values
 	static int instances = 0;
 	int myinstance = 0;
 	
+	// Data structures
 	private int currentId;
 	private Map<Integer, GenericTrade> trades;
 	private Set<QueuedItemDelivery> deliveries;
 	
+	// Constructor
 	public TradeStorage() {
 		trades = new HashMap<Integer, GenericTrade>();
 		currentId = 0;
@@ -100,7 +107,7 @@ public class TradeStorage implements ConfigurationSerializable {
 		if(trades.containsKey(id)) {
 			return trades.get(id);
 		}
-		throw new TradeNotFoundException(String.format("Trade with id %d was not found.", id));
+		throw new TradeNotFoundException(String.format("A trade with id %d was not found.", id));
 	}
 	
 	void addTrade(GenericTrade tr) {
@@ -109,23 +116,76 @@ public class TradeStorage implements ConfigurationSerializable {
 	
 	GenericTrade removeTrade(Integer id) throws TradeNotFoundException {
 		if(trades.containsKey(id)) {
-			return trades.remove(id);
+			GenericTrade removed = trades.remove(id);
+			
+			// If this is a GenericBid then we also need to remove its ID
+			// from the list of bids on its parent GenericOffer.
+			if(removed instanceof GenericBid) {
+				GenericBid b = (GenericBid)removed;
+				if(trades.containsKey(b.getParentId()) && trades.get(b.getParentId()) instanceof GenericOffer) {
+					GenericOffer o = (GenericOffer)trades.get(b.getParentId());
+					// We can't use getBids() as that returns a read-only copy.
+					// Instead we use the protected access level to access the field itself.
+					o.bids.remove(b.getId());
+				}
+			}
+			
+			return removed;
 		}
-		throw new TradeNotFoundException(String.format("Trade with id %d was not found.", id));
+		throw new TradeNotFoundException(String.format("A trade with id %d was not found.", id));
 	}
 	
 	Collection<QueuedItemDelivery> getDeliveries() {
 		return Collections.unmodifiableSet(deliveries);
 	}
 	
-	Iterator<QueuedItemDelivery> getDeliveryIterator() {
-		return deliveries.iterator();
+	/**
+	 * Attempts to deliver all pending items to the given player.<br>
+	 * <br>
+	 * This is a method of {@link TradeStorage} instead of {@link TradeManager} because it
+	 * requires access to an iterator over the deliveries collection. 
+	 * @param p The {@link OfflinePlayer} whose queued items should be delivered.
+	 * @returns A {@link DeliveryResult} containing the result of this delivery attempt.
+	 */
+	public DeliveryResult deliverQueued(OfflinePlayer p) {
+		if(!p.isOnline()) {
+			return DeliveryResult.PLAYER_OFFLINE;
+		}
+		DeliveryResult state = DeliveryResult.SUCCESS;
+		Iterator<QueuedItemDelivery> i = deliveries.iterator();
+		// If there are no items to be delivered, return appropriate status
+		if(!i.hasNext()) return DeliveryResult.NO_ITEMS;
+		while(i.hasNext()) {
+			QueuedItemDelivery delivery = i.next();
+			if(delivery.getTarget().equals(p)) {
+				// Attempt delivery of items.
+				if(delivery.deliver() == DeliveryResult.SUCCESS) {
+					// Remove pending delivery if it was successful.
+					i.remove();
+				}
+				else state = DeliveryResult.NOT_ENOUGH_SPACE;
+			}
+		}
+		return state;
 	}
 	
+	/**
+	 * Adds a {@link QueuedItemDelivery} to the list of queued deliveries.
+	 * @param d The {@link QueuedItemDelivery} to be added.
+	 */
 	void addDelivery(QueuedItemDelivery d) {
 		deliveries.add(d);
 	}
 	
+	/**
+	 * Removes a {@link QueuedItemDelivery} from the list of queued deliveries.<br>
+	 * <br>
+	 * <b>Note:</b> This is not actually required, and in fact should never be called in normal operation,
+	 *  since deliveries are automatically removed from the list when they complete successfully.
+	 *  However it is implemented for completeness, debugging purposes and possible future use
+	 *  (e.g. allowing admins to clear a pending delivery).
+	 * @param d The {@link QueuedItemDelivery} to be removed.
+	 */
 	void removeDelivery(QueuedItemDelivery d) {
 		deliveries.remove(d);
 	}
