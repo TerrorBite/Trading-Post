@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import net.lethargiclion.tradingpost.GenericBid;
 import net.lethargiclion.tradingpost.ItemBid;
 import net.lethargiclion.tradingpost.TradeNotFoundException;
 import net.lethargiclion.tradingpost.TradeOffer;
+import net.lethargiclion.tradingpost.TradeStatus;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -34,6 +36,14 @@ public class TradeOfferTest {
 	
 	// Must be last as it relies on the above initializations
 	final static Map<String, Object> SERIAL_DATA = generateTestSerialData();
+	
+	public TradeOfferTest() {
+		// Set up for testing.
+		if(org.bukkit.Bukkit.getServer() == null) {
+			org.bukkit.Server dummyServer = new TestServer();
+			org.bukkit.Bukkit.setServer(dummyServer);
+		}
+	}
 	
 	private static Map<String, Object> generateTestSerialData() {
 		Map<String, Object> serial = new LinkedHashMap<String, Object>();
@@ -110,6 +120,48 @@ public class TradeOfferTest {
 		
 		// This should throw a TradeNotFound exception
 		test.markAccepted(123);
+	}
+	
+	@Test
+	public void accessors() {
+		assertEquals(ID, test.getId());
+		assertEquals(-1, test.getAcceptedBidId());
+		assertEquals(PLAYER, test.getOwner());
+		assertTrue(test.getItems().containsAll(ITEMS));
+		assertTrue(test.getBids().isEmpty());
+		assertEquals(TradeStatus.open, test.getStatus());
+		assertNotNull(test.getTimestamp());
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void persist() {
+		// Serialize our test object.
+		Map<String, Object> serial = test.serialize();
+		
+		assertTrue(serial.get("items") instanceof List<?>);
+		
+		// We need to simulate Bukkit's automatic deserializing of objects.
+		List<Map<String, Object>> itemdata = (List<Map<String, Object>>) serial.get("items");
+		Iterator<Map<String, Object>> i = itemdata.iterator();
+		List<ItemStack> newlist = new ArrayList<ItemStack>();
+		while(i.hasNext()) {
+			newlist.add(ItemStack.deserialize(i.next()));
+		}
+		serial.put("items", newlist);
+		
+		// Deserialize as a new object.
+		TradeOffer test2;
+		try {
+			test2 = new TradeOffer(serial);
+		} catch (InstantiationException e) {
+			fail("Deserialization failed");
+			return;
+		}
+		
+		// Check if they match.
+		assertTrue("TradeOffer.equals() says the deserialized object doesn't equal the original.",
+				test.equals(test2));
 	}
 
 }

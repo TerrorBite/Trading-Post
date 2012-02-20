@@ -237,8 +237,8 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 		if(obj == this) return true;
 		
 		// Different objects, but are the contents the same?
-		if(obj instanceof ItemBid) {
-			ItemBid eq = (ItemBid)obj;
+		if(obj instanceof GenericTrade) {
+			GenericTrade eq = (GenericTrade)obj;
 			if(eq.hashCode() == this.hashCode() &&
 					eq.id == this.id) {
 				return true;

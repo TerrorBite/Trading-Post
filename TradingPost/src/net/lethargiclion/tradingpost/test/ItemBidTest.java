@@ -141,6 +141,8 @@ public class ItemBidTest {
 			return;
 		}
 		
+		assertEquals("test and test2 have different hashCodes", test.hashCode(), test2.hashCode());
+		
 		// Check if they match.
 		assertTrue("ItemBid.equals() says the deserialized object doesn't equal the original.",
 				test.equals(test2));
@@ -166,5 +168,50 @@ public class ItemBidTest {
 	public void rejectBid() {
 		test.markRejected();
 		assertEquals(TradeStatus.rejected, test.getStatus());
+	}
+	
+	@Test
+	public void withdrawBid() {
+		test.markWithdrawn();
+		assertEquals(TradeStatus.withdrawn, test.getStatus());
+	}
+	
+	@Test
+	public void expireBid() {
+		test.markExpired();
+		assertEquals(TradeStatus.expired, test.getStatus());
+	}
+	
+	@Test
+	public void completeBid() {
+		test.markCompleted();
+		// This should alias to accepted status
+		assertEquals(TradeStatus.accepted, test.getStatus());
+	}
+	
+	@Test
+	public void statusAlreadySet() {
+		test.markWithdrawn();
+		// Second call should have no effect - once marked it
+		// should not be possible to change its status again
+		test.markAccepted();
+		assertEquals(TradeStatus.withdrawn, test.getStatus());
+		test.markRejected();
+		assertEquals(TradeStatus.withdrawn, test.getStatus());
+		test.markExpired();
+		assertEquals(TradeStatus.withdrawn, test.getStatus());
+	}
+	
+	@Test
+	public void statusAlreadySet2() {
+		test.markAccepted();
+		// Second call should have no effect - once marked it
+		// should not be possible to change its status again
+		test.markWithdrawn();
+		assertEquals(TradeStatus.accepted, test.getStatus());
+		test.markRejected();
+		assertEquals(TradeStatus.accepted, test.getStatus());
+		test.markExpired();
+		assertEquals(TradeStatus.accepted, test.getStatus());
 	}
 }
