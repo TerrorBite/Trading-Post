@@ -93,7 +93,7 @@ public class ItemBidTest {
 				serial.containsKey("id"));
 		
 		// Test the value of a key.
-		assertEquals(serial.get("id"), ID);
+		assertEquals("Serializd value of the \"id\" field does not match", ID, serial.get("id"));
 		
 	}
 	
@@ -108,9 +108,9 @@ public class ItemBidTest {
 			return;
 		}
 		
-		assertEquals(test2.getId(), ID);
-		assertEquals(test2.getParentId(), PARENT_ID);
-		assertEquals(test2.getStatus(), TradeStatus.open);
+		assertEquals(ID, test2.getId());
+		assertEquals(PARENT_ID, test2.getParentId());
+		assertEquals(TradeStatus.open, test2.getStatus());
 		assertTrue(test2.getItems().contains(ITEMS.get(0)));
 		
 	}
@@ -148,23 +148,23 @@ public class ItemBidTest {
 	
 	@Test
 	public void accessors() {
-		assertEquals(test.getId(), ID);
-		assertEquals(test.getParentId(), PARENT_ID);
-		assertEquals(test.getOwner(), PLAYER);
+		assertEquals(ID, test.getId());
+		assertEquals(PARENT_ID, test.getParentId());
+		assertEquals(PLAYER, test.getOwner());
 		assertTrue(test.getItems().containsAll(ITEMS));
-		assertEquals(test.getStatus(), TradeStatus.open);
+		assertEquals(TradeStatus.open, test.getStatus());
 		assertNotNull(test.getTimestamp());
 	}
 	
 	@Test
 	public void acceptBid() {
 		test.markAccepted();
-		assertEquals(test.getStatus(), TradeStatus.accepted);
+		assertEquals(TradeStatus.accepted, test.getStatus());
 	}
 	
 	@Test
 	public void rejectBid() {
 		test.markRejected();
-		assertEquals(test.getStatus(), TradeStatus.rejected);
+		assertEquals(TradeStatus.rejected, test.getStatus());
 	}
 }
