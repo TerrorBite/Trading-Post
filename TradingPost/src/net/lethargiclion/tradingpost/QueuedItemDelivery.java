@@ -1,6 +1,7 @@
 package net.lethargiclion.tradingpost;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class QueuedItemDelivery implements ConfigurationSerializable {
 		this.items = items;
 	}
 	
-	public QueuedItemDelivery(OfflinePlayer p, List<ItemStack> items) {
+	public QueuedItemDelivery(OfflinePlayer p, Collection<ItemStack> items) {
 		this(p, items.toArray(new ItemStack[items.size()]));
 	}
 	

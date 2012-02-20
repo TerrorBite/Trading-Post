@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -257,24 +258,24 @@ public class TradeManager implements Listener {
 	 * Delivers items to a player. The items will be delivered immediately if
 	 * the player is online.
 	 * @param p The player to deliver to.
-	 * @param items The items to deliver.
+	 * @param collection The items to deliver.
 	 */
-	public void deliverItems(OfflinePlayer p, List<ItemStack> items) {
-		deliverItems(p, items, false);
+	public void deliverItems(OfflinePlayer p, Collection<ItemStack> collection) {
+		deliverItems(p, collection, false);
 	}
 	
 	/**
 	 * Delivers items to a player. The items will be delivered immediately if
 	 * the player is online, unless forceDelay is set to {@code true}.
 	 * @param p The player to deliver to.
-	 * @param items The items to deliver.
+	 * @param collection The items to deliver.
 	 * @param forceDelay If true, will force the items to be delivered later.
 	 * @returns true if items were delivered without being queued.
 	 */
-	public boolean deliverItems(OfflinePlayer p, List<ItemStack> items, boolean forceDelay) {
+	public boolean deliverItems(OfflinePlayer p, Collection<ItemStack> collection, boolean forceDelay) {
 		if(p.isOnline() && !forceDelay) {
 			// Try and deliver the items now
-			Map<Integer, ItemStack> undelivered = p.getPlayer().getInventory().addItem(items.toArray(new ItemStack[items.size()]));
+			Map<Integer, ItemStack> undelivered = p.getPlayer().getInventory().addItem(collection.toArray(new ItemStack[collection.size()]));
 			
 			// If all items were delivered, return true
 			if(undelivered.isEmpty()) {
@@ -285,7 +286,7 @@ public class TradeManager implements Listener {
 		}
 		else {
 			// Player is offline, deliver the items later
-			storage.addDelivery(new QueuedItemDelivery(p, items));
+			storage.addDelivery(new QueuedItemDelivery(p, collection));
 		}
 		return false;
 	}

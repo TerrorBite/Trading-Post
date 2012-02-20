@@ -75,8 +75,9 @@ public class ItemBidTest {
 
 	@Before
 	public void createTestInstance() {
-		this.test = new ItemBid(PLAYER, ITEMS,
-				ID, TIMESTAMP, TradeStatus.open, PARENT_ID);
+		/*this.test = new ItemBid(PLAYER, ITEMS,
+				ID, TIMESTAMP, TradeStatus.open, PARENT_ID);*/
+		this.test = new ItemBid(ID, PLAYER, ITEMS, PARENT_ID);
 	}
 	
 	@Test
@@ -99,13 +100,18 @@ public class ItemBidTest {
 	@Test
 	public void deserialize() {
 		// Deserialize as a new object.
-		ItemBid test2 = ItemBid.deserialize(SERIAL_DATA);
+		ItemBid test2 = null;
+		try {
+			test2 = new ItemBid(SERIAL_DATA);
+		} catch (InstantiationException e) {
+			fail("Deserialization failed");
+			return;
+		}
 		
 		assertEquals(test2.getId(), ID);
 		assertEquals(test2.getParentId(), PARENT_ID);
 		assertEquals(test2.getStatus(), TradeStatus.open);
-		assertEquals(test2.getItems().get(0).getType(), Material.OBSIDIAN);
-		assertEquals(test2.getItems().get(0).getAmount(), 30);
+		assertTrue(test2.getItems().contains(ITEMS.get(0)));
 		
 	}
 	
@@ -127,7 +133,13 @@ public class ItemBidTest {
 		serial.put("items", newlist);
 		
 		// Deserialize as a new object.
-		ItemBid test2 = ItemBid.deserialize(serial);
+		ItemBid test2;
+		try {
+			test2 = new ItemBid(serial);
+		} catch (InstantiationException e) {
+			fail("Deserialization failed");
+			return;
+		}
 		
 		// Check if they match.
 		assertTrue("ItemBid.equals() says the deserialized object doesn't equal the original.",
@@ -135,17 +147,13 @@ public class ItemBidTest {
 	}
 	
 	@Test
-	public void bidId() {
+	public void accessors() {
 		assertEquals(test.getId(), ID);
-	}
-	
-	public void parentId() {
 		assertEquals(test.getParentId(), PARENT_ID);
-	}
-	
-	@Test
-	public void owner() {
 		assertEquals(test.getOwner(), PLAYER);
+		assertTrue(test.getItems().containsAll(ITEMS));
+		assertEquals(test.getStatus(), TradeStatus.open);
+		assertNotNull(test.getTimestamp());
 	}
 	
 	@Test
@@ -158,10 +166,5 @@ public class ItemBidTest {
 	public void rejectBid() {
 		test.markRejected();
 		assertEquals(test.getStatus(), TradeStatus.rejected);
-	}
-	
-	@Test
-	public void timestamp() {
-		assertEquals(test.getTimestamp(), TIMESTAMP);
 	}
 }
