@@ -2,12 +2,17 @@ package net.lethargiclion.tradingpost;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
@@ -21,12 +26,12 @@ public class TradeStorage implements ConfigurationSerializable {
 	static int instances = 0;
 	int myinstance = 0;
 	
-	public int currentId;
-	public Collection<TradeBase> trades;
-	public Collection<QueuedItemDelivery> deliveries;
+	private int currentId;
+	private Map<Integer, TradeBase> trades;
+	private Set<QueuedItemDelivery> deliveries;
 	
 	public TradeStorage() {
-		trades = new ArrayList<TradeBase>();
+		trades = new HashMap<Integer, TradeBase>();
 		currentId = 0;
 	}
 	
@@ -43,20 +48,28 @@ public class TradeStorage implements ConfigurationSerializable {
 		TradingPost.log.info(String.format("[DEBUG] Instance %d got currentId=%d", myinstance, currentId));
 
 		// Initialize our list of trades.
-		trades = null;
+		
+		Collection<TradeBase> tradelist = null;
+		trades = new HashMap<Integer, TradeBase>();
 		
 		try {
 			// Attempt to cast incoming to a collection of TradeBase
 			// The deserialization of the TradeBase objects in the list should have
 			// been done for us by the YAML parser.
-			trades = (Collection<TradeBase>)serialData.get("trades");
+			tradelist = (Collection<TradeBase>)serialData.get("trades");
 		} catch(ClassCastException ex) {
 			TradingPost.log.log(Level.SEVERE,
 					"Unable to deserialize: Invalid trade data.", ex);
 		}
 		// If that didn't go well, make an empty list
-		if(trades == null) trades = new ArrayList<TradeBase>();
+		if(trades == null) tradelist = new ArrayList<TradeBase>();
 		TradingPost.log.info(String.format("Instance %d has %d new trades", myinstance, trades.size()));
+		
+		Iterator<TradeBase> i = tradelist.iterator();
+		while(i.hasNext()) {
+			TradeBase next = i.next();
+			trades.put(next.getId(), next);
+		}
 		
 		// Initialize our list of pending deliveries.
 		deliveries = null;
@@ -65,20 +78,68 @@ public class TradeStorage implements ConfigurationSerializable {
 			// Attempt to cast incoming data to a collection of TradeBase
 			// The deserialization of the QueuedItemDelivery objects in the list
 			// should have been done for us by the YAML parser.
-			deliveries = (Collection<QueuedItemDelivery>)serialData.get("deliveries");
+			deliveries = (Set<QueuedItemDelivery>)serialData.get("deliveries");
 		} catch(ClassCastException ex) {
 			TradingPost.log.log(Level.SEVERE,
 					"Unable to deserialize: Invalid delivery data.", ex);
 		}
 		// If that didn't go well, make an empty list
-		if(deliveries == null) deliveries = new ArrayList<QueuedItemDelivery>();
+		if(deliveries == null) deliveries = new HashSet<QueuedItemDelivery>();
 		TradingPost.log.info(String.format("Instance %d has %d new deliveries", myinstance, deliveries.size()));
 	}
 	
-	public void setValues(int currentId, Collection<TradeBase> trades, Collection<QueuedItemDelivery> deliveries) {
-		this.currentId = currentId;
-		this.trades = trades;
-		this.deliveries = deliveries;
+	/**
+	 * Retrieves the next ID value that should be used for a Trade or Bid.
+	 * @return
+	 */
+	int getNextId() {
+		return currentId++;
+	}
+	
+	TradeBase getTrade(Integer id) throws TradeNotFoundException {
+		if(trades.containsKey(id)) {
+			return trades.get(id);
+		}
+		throw new TradeNotFoundException(String.format("Trade with id %d was not found.", id));
+	}
+	
+	void addTrade(TradeBase tr) {
+		this.trades.put(tr.getId(), tr);
+	}
+	
+	TradeBase removeTrade(Integer id) throws TradeNotFoundException {
+		if(trades.containsKey(id)) {
+			return trades.remove(id);
+		}
+		throw new TradeNotFoundException(String.format("Trade with id %d was not found.", id));
+	}
+	
+	Collection<QueuedItemDelivery> getDeliveries() {
+		return Collections.unmodifiableSet(deliveries);
+	}
+	
+	Iterator<QueuedItemDelivery> getDeliveryIterator() {
+		return deliveries.iterator();
+	}
+	
+	void addDelivery(QueuedItemDelivery d) {
+		deliveries.add(d);
+	}
+	
+	void removeDelivery(QueuedItemDelivery d) {
+		deliveries.remove(d);
+	}
+	
+	public List<TradeBase> getPlayerTrades(OfflinePlayer p) {
+		List<TradeBase> playerTrades = new ArrayList<TradeBase>();
+		Iterator<TradeBase> i = trades.values().iterator();
+		while(i.hasNext()) {
+			TradeBase t = i.next();
+			if(t.getOwner().equals(p)) {
+				playerTrades.add(t);
+			}
+		}
+		return playerTrades;
 	}
 	
 	@Override
@@ -92,7 +153,7 @@ public class TradeStorage implements ConfigurationSerializable {
 		// Serialize each trade into a list of maps
 		List<Map<String, Object>> subsection = new ArrayList<Map<String, Object>>();
 		{ // New scope for iterator
-			Iterator<TradeBase> i = trades.iterator();
+			Iterator<TradeBase> i = trades.values().iterator();
 			while(i.hasNext()) {
 				TradeBase t = i.next();
 				Map<String, Object> trade = new LinkedHashMap<String, Object>();
