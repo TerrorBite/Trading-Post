@@ -1,6 +1,8 @@
 package net.lethargiclion.tradingpost;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -95,8 +97,10 @@ public class TradeManager implements Listener {
 			TradingPost.log.log(Level.SEVERE, String.format("[TradingPost] TradeManager: Got an invalid class, expecting %s", TradeStorage.class.getName()), e);
 		}
 		if(storage == null) {
+			// If for some reason our storage class failed to deserialize,
+			// create a new blank one.
 			storage = new TradeStorage();
-			TradingPost.log.warning("[TradingPost] TradeManager: Failed to load from storage.yml, initialized new TradeStorage!");
+			TradingPost.log.warning("[TradingPost] TradeManager: Failed to load from storage.yml, initialized new TradeStorage!");	
 		}
 		
 		else TradingPost.log.info("[TradingPost] TradeManager: Successfully restored trading data.");
@@ -123,22 +127,53 @@ public class TradeManager implements Listener {
 			tradeStorageConfig = new YamlConfiguration();
 		}
 		
-	    // Get default persistence file from the jar
+	    // Get default persistence file from the jar.
 	    InputStream defaultStorageStream = plugin.getResource("storage.yml");
 	    if (defaultStorageStream != null) {
+	    	// Set default values (e.g. empty storage) if no storage exists yet.
 	    	tradeStorageConfig.setDefaults(YamlConfiguration.loadConfiguration(defaultStorageStream));
 	    }
 	}
 	
 	private void saveStorage() {
 		if (tradeStorageConfig == null || tradeStorageFile == null) {
+			// Don't save if there is nothing to save
 		    return;
-		    }
-		    try {
-		        tradeStorageConfig.save(tradeStorageFile);
-		    } catch (IOException ex) {
-		        TradingPost.log.log(Level.SEVERE, "Could not persist storage to " + tradeStorageFile, ex);
-		    }
+	    }
+		
+		// Make a backup of the old storage file just in case
+		File backupFile = new File(plugin.getDataFolder(), "storage.yml.old");
+		try {
+			// Create backup file if it doesn't exist (may throw IOException)
+			backupFile.createNewFile();
+			
+			// Open files for reading/writing (may throw FileNotFoundException)
+			FileInputStream in = new FileInputStream(tradeStorageFile);
+			FileOutputStream out = new FileOutputStream(backupFile);
+			
+			// Set up buffer
+			byte[] data = new byte[4096];
+			int bytes = 0;
+			
+			// Copy data into backup file (may throw IOException)
+			while((bytes = in.read(data)) >= 0) {
+				out.write(data, 0, bytes);
+			}
+			
+			// Close files (may throw IOException)
+			out.close();
+			in.close();
+		} catch(java.io.FileNotFoundException ex) {
+			TradingPost.log.warning("[TradingPost] TradeManager: Failed to back up storage.yml: File not found");
+		} catch (IOException e) {
+			TradingPost.log.warning("[TradingPost] TradeManager: Failed to back up storage.yml: Read or write error");
+		}
+		
+	    try {
+	        tradeStorageConfig.save(tradeStorageFile);
+	    } catch (IOException ex) {
+	        TradingPost.log.log(Level.SEVERE, "Could not persist storage to " + tradeStorageFile, ex);
+	    }
 	}
 	
 	public TradeBase getTrade(int tradeId) throws TradeNotFoundException {
