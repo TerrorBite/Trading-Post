@@ -27,11 +27,11 @@ public class TradeStorage implements ConfigurationSerializable {
 	int myinstance = 0;
 	
 	private int currentId;
-	private Map<Integer, TradeBase> trades;
+	private Map<Integer, GenericTrade> trades;
 	private Set<QueuedItemDelivery> deliveries;
 	
 	public TradeStorage() {
-		trades = new HashMap<Integer, TradeBase>();
+		trades = new HashMap<Integer, GenericTrade>();
 		currentId = 0;
 	}
 	
@@ -49,25 +49,25 @@ public class TradeStorage implements ConfigurationSerializable {
 
 		// Initialize our list of trades.
 		
-		Collection<TradeBase> tradelist = null;
-		trades = new HashMap<Integer, TradeBase>();
+		Collection<GenericTrade> tradelist = null;
+		trades = new HashMap<Integer, GenericTrade>();
 		
 		try {
-			// Attempt to cast incoming to a collection of TradeBase
-			// The deserialization of the TradeBase objects in the list should have
+			// Attempt to cast incoming to a collection of GenericTrade
+			// The deserialization of the GenericTrade objects in the list should have
 			// been done for us by the YAML parser.
-			tradelist = (Collection<TradeBase>)serialData.get("trades");
+			tradelist = (Collection<GenericTrade>)serialData.get("trades");
 		} catch(ClassCastException ex) {
 			TradingPost.log.log(Level.SEVERE,
 					"Unable to deserialize: Invalid trade data.", ex);
 		}
 		// If that didn't go well, make an empty list
-		if(trades == null) tradelist = new ArrayList<TradeBase>();
+		if(trades == null) tradelist = new ArrayList<GenericTrade>();
 		TradingPost.log.info(String.format("Instance %d has %d new trades", myinstance, trades.size()));
 		
-		Iterator<TradeBase> i = tradelist.iterator();
+		Iterator<GenericTrade> i = tradelist.iterator();
 		while(i.hasNext()) {
-			TradeBase next = i.next();
+			GenericTrade next = i.next();
 			trades.put(next.getId(), next);
 		}
 		
@@ -75,7 +75,7 @@ public class TradeStorage implements ConfigurationSerializable {
 		deliveries = null;
 		
 		try {
-			// Attempt to cast incoming data to a collection of TradeBase
+			// Attempt to cast incoming data to a collection of GenericTrade
 			// The deserialization of the QueuedItemDelivery objects in the list
 			// should have been done for us by the YAML parser.
 			deliveries = (Set<QueuedItemDelivery>)serialData.get("deliveries");
@@ -96,18 +96,18 @@ public class TradeStorage implements ConfigurationSerializable {
 		return currentId++;
 	}
 	
-	TradeBase getTrade(Integer id) throws TradeNotFoundException {
+	GenericTrade getTrade(Integer id) throws TradeNotFoundException {
 		if(trades.containsKey(id)) {
 			return trades.get(id);
 		}
 		throw new TradeNotFoundException(String.format("Trade with id %d was not found.", id));
 	}
 	
-	void addTrade(TradeBase tr) {
+	void addTrade(GenericTrade tr) {
 		this.trades.put(tr.getId(), tr);
 	}
 	
-	TradeBase removeTrade(Integer id) throws TradeNotFoundException {
+	GenericTrade removeTrade(Integer id) throws TradeNotFoundException {
 		if(trades.containsKey(id)) {
 			return trades.remove(id);
 		}
@@ -130,11 +130,11 @@ public class TradeStorage implements ConfigurationSerializable {
 		deliveries.remove(d);
 	}
 	
-	public List<TradeBase> getPlayerTrades(OfflinePlayer p) {
-		List<TradeBase> playerTrades = new ArrayList<TradeBase>();
-		Iterator<TradeBase> i = trades.values().iterator();
+	public List<GenericTrade> getPlayerTrades(OfflinePlayer p) {
+		List<GenericTrade> playerTrades = new ArrayList<GenericTrade>();
+		Iterator<GenericTrade> i = trades.values().iterator();
 		while(i.hasNext()) {
-			TradeBase t = i.next();
+			GenericTrade t = i.next();
 			if(t.getOwner().equals(p)) {
 				playerTrades.add(t);
 			}
@@ -153,9 +153,9 @@ public class TradeStorage implements ConfigurationSerializable {
 		// Serialize each trade into a list of maps
 		List<Map<String, Object>> subsection = new ArrayList<Map<String, Object>>();
 		{ // New scope for iterator
-			Iterator<TradeBase> i = trades.values().iterator();
+			Iterator<GenericTrade> i = trades.values().iterator();
 			while(i.hasNext()) {
-				TradeBase t = i.next();
+				GenericTrade t = i.next();
 				Map<String, Object> trade = new LinkedHashMap<String, Object>();
 				trade.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY,
 						t.getClass().getName());

@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public class TradeOffer extends TradeBase {
+public class TradeOffer extends GenericTrade {
 	
 	List<Integer> bids;
 	int acceptedBidId;

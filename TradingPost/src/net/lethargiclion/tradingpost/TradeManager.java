@@ -158,7 +158,7 @@ public class TradeManager implements Listener {
 	 * @return The trade with the given ID.
 	 * @throws TradeNotFoundException if there is no trade with that ID.
 	 */
-	public TradeBase getTrade(int tradeId) throws TradeNotFoundException {
+	public GenericTrade getTrade(int tradeId) throws TradeNotFoundException {
 		return storage.getTrade(tradeId);
 	}
 
@@ -185,7 +185,7 @@ public class TradeManager implements Listener {
 		ItemBid b = getBid(bidId);
 		if(b == null) throw new TradeNotFoundException("This trade does not exist, or is not a bid.");
 		//TODO: Check if the given player is allowed to accept this bid.
-		TradeBase trade = getTrade(b.getParentId());
+		GenericTrade trade = getTrade(b.getParentId());
 		if(trade == null) {
 			throw new TradeNotFoundException("This bid's parent does not exist.");
 		}
@@ -246,7 +246,7 @@ public class TradeManager implements Listener {
 	 * @throws TradeNotFoundException 
 	 */
 	public ItemBid getBid(int bidId) throws TradeNotFoundException {
-		TradeBase t = getTrade(bidId);
+		GenericTrade t = getTrade(bidId);
 		if(t instanceof ItemBid) {
 			return (ItemBid)t;
 		}

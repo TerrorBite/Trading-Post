@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public class ItemBid extends TradeBase implements Cloneable {
+public class ItemBid extends GenericTrade implements Cloneable {
 	
 	int parentId;
 	

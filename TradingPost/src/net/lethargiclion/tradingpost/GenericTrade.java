@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
  * @author TerrorBite
  *
  */
-public abstract class TradeBase implements ConfigurationSerializable {
+public abstract class GenericTrade implements ConfigurationSerializable {
 
 	protected int id;
 	protected List<ItemStack> items;
