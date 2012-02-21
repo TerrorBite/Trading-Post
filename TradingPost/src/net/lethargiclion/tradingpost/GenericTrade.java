@@ -1,8 +1,10 @@
 package net.lethargiclion.tradingpost;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -139,6 +141,68 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 	 */
 	public Date getTimestamp() {
 		return timestamp;
+	}
+	
+	private enum DateValue {
+		YEAR(Calendar.YEAR, "year"),
+		WEEK(Calendar.WEEK_OF_YEAR, "week"),
+		DAY(Calendar.DAY_OF_MONTH, "day"),
+		HOUR(Calendar.HOUR, "hour"),
+		MINUTE(Calendar.MINUTE, "minute"),
+		SECOND(Calendar.SECOND, "second");
+		
+		private int field;
+		private String text;
+		DateValue(int field, String text) {
+			this.field = field;
+			this.text = text;
+		}
+		
+		public int getField() {
+			return field;
+		}
+		
+		public String getText(int value) {
+			return String.format("%s%s", this.text, value==1?"":"s");
+		}
+	}
+	
+	public String getTimeString() {
+		
+		List<String> strings = new ArrayList<String>();
+		
+		Calendar ref = new GregorianCalendar();
+		ref.setTimeInMillis(0);
+		
+		Calendar time = new GregorianCalendar();
+		long millisecs = new Date().getTime() - timestamp.getTime();
+		time.setTimeInMillis(millisecs);
+		
+		for(DateValue dv: DateValue.values()) {
+			int field = dv.getField();
+			if(ref.get(field) != time.get(field)) {
+				int value = time.get(field) - ref.get(field);
+				strings.add(String.format("%d %s",
+						value,
+						dv.getText(value)
+				));
+			}
+		}
+		
+		if(strings.size() == 0) {
+			strings.add("0 seconds");
+		}
+		
+		StringBuilder b = new StringBuilder();
+		Iterator<String> i = strings.iterator();
+		while(i.hasNext()) {
+			b.append(i.next());
+			if(i.hasNext()) b.append(", ");
+		}
+		b.append(" ago");
+		
+		return b.toString();
+		
 	}
 	
 	/**

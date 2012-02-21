@@ -1,6 +1,7 @@
 package net.lethargiclion.tradingpost;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -35,11 +36,14 @@ public class CommandProcessor {
 	 *
 	 */
 	public enum TPCommand {
-		// Enum constants need to be named 
+		// Enum constants need to be named in capitals
 		HELP,
 		COMMANDS,
 		DELIVER,
 		SELL,
+		BROWSE,
+		CHECK,
+		SHOW,
 		DEBUG // TODO: Don't leave debug command in.
 		//TODO: Add full range of commands
 	}
@@ -93,6 +97,12 @@ public class CommandProcessor {
 			return cmdDeliver(p);
 		case SELL:
 			return cmdSell(p);
+		case BROWSE:
+			return cmdBrowse(p, cmdargs);
+		case CHECK:
+			return cmdCheck(p, cmdargs);
+		case SHOW:
+			return cmdShow(p, cmdargs);
 		case DEBUG:
 			return cmdDebug(p, cmdargs);
 		default:
@@ -103,6 +113,130 @@ public class CommandProcessor {
 		
 	}
 	
+	private boolean cmdCheck(Player p, String[] cmdargs) {
+		List<GenericTrade> pTrades = manager.getPlayerTrades(p);
+		for(GenericTrade tr: pTrades) {
+			// Only display open strades
+			if(tr.getStatus() != TradeStatus.open) continue;
+			
+			// Get the first ItemStack from the trade for later display use
+			// (it will only be displayed if it was the only ItemStack)
+			ItemStack item = tr.getItems().toArray(new ItemStack[tr.getItems().size()])[0];
+			
+			// For offers:
+			if(tr instanceof GenericOffer) {
+				p.sendMessage(String.format(
+						"#%d: You offered %s (%d bids)",
+						tr.getId(),
+						(tr.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items",
+						((GenericOffer)tr).bidCount()
+					));
+			}
+			
+			// For bids:
+			else if(tr instanceof GenericBid) {
+				String parentOwner = "Unknown";
+				try {
+					parentOwner = manager.getTrade(((GenericBid)tr).getParentId()).getOwner().getName();
+				} catch (TradeNotFoundException e) {
+					// What do?
+				}
+				p.sendMessage(String.format(
+						"#%d: You bid %s on offer %d by %s",
+						tr.getId(),
+						(tr.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items",
+						((GenericBid)tr).getParentId(),
+						parentOwner
+					));
+			}
+		}
+		return false;
+	}
+
+	private boolean cmdShow(Player p, String[] cmdargs) {
+
+		List<String> output = new ArrayList<String>();
+		if(cmdargs.length == 0) {
+			p.sendMessage("You need to give a valid trade ID.");
+			return true;
+		}
+		
+		int tradeId;
+		try {
+			tradeId = Integer.parseInt(cmdargs[0]);
+			if(tradeId < 0) {
+				p.sendMessage("You need to give a valid trade ID.");
+				return true;
+			}
+			GenericTrade tr = manager.getTrade(tradeId);
+			
+			output.add(String.format("[#%d] %s %s by %s, %s",
+					tr.getId(),
+					tr.getStatus().name().toLowerCase(),
+					tr instanceof GenericOffer?"offer":"bid",
+					tr.getOwner().getName(),
+					tr.getTimeString()
+			));
+			
+			if(tr instanceof GenericBid) {
+				try {
+					GenericTrade parent = manager.getTrade(((GenericBid)tr).getParentId());
+					output.add(String.format("On %s offer #%d by %s",
+							parent.getStatus().name().toLowerCase(),
+							parent.getId(),
+							parent.getOwner().getName()
+					));
+				} catch (TradeNotFoundException e) {
+					output.add(String.format("On invalid offer ID #%d", ((GenericBid)tr).getParentId()));
+				}
+			}
+			
+			StringBuilder b = new StringBuilder();
+			b.append("Items: ");
+			Iterator<ItemStack> i = tr.getItems().iterator();
+			while(i.hasNext()) {
+				ItemStack is = i.next();
+				b.append(String.format("%d %s", is.getAmount(), is.getType().toString()));
+				if(i.hasNext()) b.append(", ");
+			}
+			output.add(b.toString());
+			
+			// TODO: Output trade's comment value
+			
+			if(tr instanceof GenericOffer) {
+				for(Integer bidId: ((GenericOffer)tr).getBids()) {
+					try {
+						GenericBid bid = manager.getBid(bidId);
+						// Get the first ItemStack from the trade for later display use
+						// (it will only be displayed if it was the only ItemStack)
+						ItemStack item = bid.getItems().toArray(new ItemStack[tr.getItems().size()])[0];
+						output.add(String.format("Bid #%d: %s offered %s",
+								bidId,
+								(bid.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items"
+						));
+					} catch(TradeNotFoundException ex) {
+						output.add(String.format("Bid #%d: invalid", bidId));
+					}
+				}
+			}
+			
+			
+		} catch(NumberFormatException ex) {
+			p.sendMessage("You need to give a valid trade ID.");
+			return true;
+		} catch (TradeNotFoundException e) {
+			p.sendMessage("There is no trade by that ID.");
+			return true;
+		}
+		
+		return true;
+	}
+
+	private boolean cmdBrowse(Player p, String[] cmdargs) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	private boolean cmdSell(Player p) {
 		// Get the player's held item stack
 		ItemStack items = p.getItemInHand();

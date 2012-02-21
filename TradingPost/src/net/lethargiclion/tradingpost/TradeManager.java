@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -376,6 +377,10 @@ public class TradeManager implements Listener {
 	 */
 	public DeliveryResult deliverQueued(OfflinePlayer p) {
 		return storage.deliverQueued(p);
+	}
+	
+	public List<GenericTrade> getPlayerTrades(OfflinePlayer p) {
+		return storage.getPlayerTrades(p);
 	}
 	
 	@EventHandler
