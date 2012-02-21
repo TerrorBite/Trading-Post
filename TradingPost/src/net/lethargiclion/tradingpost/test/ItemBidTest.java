@@ -214,4 +214,17 @@ public class ItemBidTest {
 		test.markExpired();
 		assertEquals(TradeStatus.accepted, test.getStatus());
 	}
+	
+	@Test
+	public void checkTimeString() {
+		try {
+			synchronized(this) {
+				this.wait(2000);
+			}
+		} catch (InterruptedException e) {
+			return;
+		}
+		
+		assertEquals("2 seconds ago", test.getTimeString());
+	}
 }

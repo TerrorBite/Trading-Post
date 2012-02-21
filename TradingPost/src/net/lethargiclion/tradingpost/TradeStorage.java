@@ -110,6 +110,21 @@ public class TradeStorage implements ConfigurationSerializable {
 		throw new TradeNotFoundException(String.format("A trade with id %d was not found.", id));
 	}
 	
+	/**
+	 * Retrieves a List of trades that this player owns.
+	 * @param p The OfflinePlayer to search for.
+	 * @return A List of a player's trades.
+	 */
+	List<GenericTrade> getPlayerTrades(OfflinePlayer p) {
+		List<GenericTrade> playerTrades = new ArrayList<GenericTrade>();
+		for(GenericTrade tr: trades.values()) {
+			if(tr.getOwner().equals(p)) {
+				playerTrades.add(tr);
+			}
+		}
+		return playerTrades;
+	}
+	
 	void addTrade(GenericTrade tr) {
 		this.trades.put(tr.getId(), tr);
 	}
@@ -188,18 +203,6 @@ public class TradeStorage implements ConfigurationSerializable {
 	 */
 	void removeDelivery(QueuedItemDelivery d) {
 		deliveries.remove(d);
-	}
-	
-	public List<GenericTrade> getPlayerTrades(OfflinePlayer p) {
-		List<GenericTrade> playerTrades = new ArrayList<GenericTrade>();
-		Iterator<GenericTrade> i = trades.values().iterator();
-		while(i.hasNext()) {
-			GenericTrade t = i.next();
-			if(t.getOwner().equals(p)) {
-				playerTrades.add(t);
-			}
-		}
-		return playerTrades;
 	}
 	
 	@Override

@@ -64,6 +64,15 @@ public abstract class GenericOffer extends GenericTrade {
 		return Collections.unmodifiableCollection(bids);
 	}
 	
+
+	public int bidCount() {
+		return this.bids.size();
+	}
+	
+	public boolean hasBid(int bidId) {
+		return bids.contains((Integer)bidId);
+	}
+	
 	/**
 	 * Adds the given bid's ID to the list of bid IDs on this offer.<br>
 	 * Only bids whose parent is set to this bid's ID may be added.
