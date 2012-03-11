@@ -39,7 +39,7 @@ public class TradingPost extends JavaPlugin {
 	CommandProcessor processor;
 	
 	public TradingPost() {
-		log = this.getLogger();
+		log = org.bukkit.Bukkit.getLogger();
 	}
 	
 	/**

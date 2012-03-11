@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 
 import net.lethargiclion.tradingpost.QueuedItemDelivery.DeliveryResult;
@@ -34,7 +32,7 @@ public class TradeStorage implements ConfigurationSerializable {
 	// Data structures
 	private int currentId;
 	private Map<Integer, GenericTrade> trades;
-	private Set<QueuedItemDelivery> deliveries;
+	private Collection<QueuedItemDelivery> deliveries;
 	
 	// Constructor
 	public TradeStorage() {
@@ -85,13 +83,13 @@ public class TradeStorage implements ConfigurationSerializable {
 			// Attempt to cast incoming data to a collection of GenericTrade
 			// The deserialization of the QueuedItemDelivery objects in the list
 			// should have been done for us by the YAML parser.
-			deliveries = (Set<QueuedItemDelivery>)serialData.get("deliveries");
+			deliveries = (Collection<QueuedItemDelivery>)serialData.get("deliveries");
 		} catch(ClassCastException ex) {
 			TradingPost.log.log(Level.SEVERE,
 					"Unable to deserialize: Invalid delivery data.", ex);
 		}
 		// If that didn't go well, make an empty list
-		if(deliveries == null) deliveries = new HashSet<QueuedItemDelivery>();
+		if(deliveries == null) deliveries = new ArrayList<QueuedItemDelivery>();
 		TradingPost.log.info(String.format("Instance %d has %d new deliveries", myinstance, deliveries.size()));
 	}
 	
@@ -151,7 +149,7 @@ public class TradeStorage implements ConfigurationSerializable {
 	}
 	
 	Collection<QueuedItemDelivery> getDeliveries() {
-		return Collections.unmodifiableSet(deliveries);
+		return Collections.unmodifiableCollection(deliveries);
 	}
 	
 	/**
