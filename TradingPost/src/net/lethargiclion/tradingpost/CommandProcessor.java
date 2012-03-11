@@ -142,41 +142,47 @@ public class CommandProcessor {
 	private boolean cmdCheck(Player p, String[] cmdargs) {
 		List<GenericTrade> pTrades = manager.getPlayerTrades(p);
 		for(GenericTrade tr: pTrades) {
-			// Only display open strades
+			// Only display open trades
 			if(tr.getStatus() != TradeStatus.open) continue;
 			
-			// Get the first ItemStack from the trade for later display use
-			// (it will only be displayed if it was the only ItemStack)
-			ItemStack item = tr.getItems().toArray(new ItemStack[tr.getItems().size()])[0];
-			
-			// For offers:
-			if(tr instanceof GenericOffer) {
-				p.sendMessage(String.format(
-						"#%d: You offered %s (%d bids)",
-						tr.getId(),
-						(tr.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items",
-						((GenericOffer)tr).bidCount()
-					));
-			}
-			
-			// For bids:
-			else if(tr instanceof GenericBid) {
-				String parentOwner = "Unknown";
-				try {
-					parentOwner = manager.getTrade(((GenericBid)tr).getParentId()).getOwner().getName();
-				} catch (TradeNotFoundException e) {
-					// What do?
-				}
-				p.sendMessage(String.format(
-						"#%d: You bid %s on offer %d by %s",
-						tr.getId(),
-						(tr.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items",
-						((GenericBid)tr).getParentId(),
-						parentOwner
-					));
-			}
+			displayItem(p, tr);
 		}
 		return false;
+	}
+	
+	private void displayItem(Player p, GenericTrade tr) {
+		// Get the first ItemStack from the trade for later display use
+		// (it will only be displayed if it was the only ItemStack)
+		ItemStack item = tr.getItems().toArray(new ItemStack[tr.getItems().size()])[0];
+		
+		// For offers:
+		if(tr instanceof GenericOffer) {
+			p.sendMessage(String.format(
+					"#%d: %s offered %s (%d bids)",
+					tr.getId(),
+					tr.getOwner()==p?"You":tr.getOwner().getName(),
+					(tr.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items",
+					((GenericOffer)tr).bidCount()
+				));
+		}
+		
+		// For bids:
+		else if(tr instanceof GenericBid) {
+			String parentOwner = "Unknown";
+			try {
+				parentOwner = manager.getTrade(((GenericBid)tr).getParentId()).getOwner().getName();
+			} catch (TradeNotFoundException e) {
+				// What do?
+			}
+			p.sendMessage(String.format(
+					"#%d: %s bid %s on offer %d by %s",
+					tr.getId(),
+					tr.getOwner()==p?"You":tr.getOwner().getName(),
+					(tr.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items",
+					((GenericBid)tr).getParentId(),
+					parentOwner
+				));
+		}
 	}
 
 	private boolean cmdShow(Player p, String[] cmdargs) {
@@ -259,7 +265,22 @@ public class CommandProcessor {
 	}
 
 	private boolean cmdBrowse(Player p, String[] cmdargs) {
-		return false;
+		List<GenericTrade> tradePage = null;
+		int pageNum= 1;
+		if (cmdargs.length != 1) return false;
+		try {
+			pageNum = Integer.parseInt(cmdargs[0]);
+		} catch (NumberFormatException e) {
+			p.sendMessage(String.format("\"%s\" is not a valid page number!", cmdargs[0]));
+			return true;
+		}
+		
+		tradePage = manager.getPage(pageNum);
+		for(GenericTrade tr: tradePage) {
+			displayItem(p, tr);
+		}
+		
+		return true;
 	}
 
 	private boolean cmdSell(Player p) {
