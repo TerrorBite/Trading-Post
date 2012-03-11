@@ -1,6 +1,7 @@
 package net.lethargiclion.tradingpost.test;
 
 import java.net.InetSocketAddress;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,21 +20,30 @@ import org.bukkit.Server;
 import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.conversations.Conversation;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.InventoryView.Property;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.map.MapView;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 /**
@@ -109,12 +119,6 @@ public class TestPlayer implements Player {
 
 	@Override
 	public float getExp() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getExperience() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -332,12 +336,6 @@ public class TestPlayer implements Player {
 
 	@Override
 	public void setExp(float arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setExperience(int arg0) {
 		// TODO Auto-generated method stub
 
 	}
@@ -948,6 +946,168 @@ public class TestPlayer implements Player {
 	public void sendPluginMessage(Plugin arg0, String arg1, byte[] arg2) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void closeInventory() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ItemStack getItemOnCursor() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public InventoryView getOpenInventory() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public InventoryView openEnchanting(Location arg0, boolean arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public InventoryView openInventory(Inventory arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void openInventory(InventoryView arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public InventoryView openWorkbench(Location arg0, boolean arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setItemOnCursor(ItemStack arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean setWindowProperty(Property arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean addPotionEffect(PotionEffect arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean addPotionEffect(PotionEffect arg0, boolean arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean addPotionEffects(Collection<PotionEffect> arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Collection<PotionEffect> getActivePotionEffects() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasPotionEffect(PotionEffectType arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public <T extends Projectile> T launchProjectile(Class<? extends T> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void removePotionEffect(PotionEffectType arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public EntityType getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<MetadataValue> getMetadata(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasMetadata(String arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void removeMetadata(String arg0, Plugin arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setMetadata(String arg0, MetadataValue arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void abandonConversation(Conversation arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void acceptConversationInput(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean beginConversation(Conversation arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isConversing() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void sendMessage(String[] arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public <T> void playEffect(Location arg0, Effect arg1, T arg2) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

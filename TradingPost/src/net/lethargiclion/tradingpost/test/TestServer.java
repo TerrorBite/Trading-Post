@@ -3,6 +3,7 @@ package net.lethargiclion.tradingpost.test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +16,16 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.World.Environment;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
-import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.help.HelpMap;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
@@ -74,27 +78,6 @@ public class TestServer implements Server {
 
 	@Override
 	public World createWorld(WorldCreator creator) {
-		throw new UnsupportedOperationException("This method is not implemented in this test stub.");
-	}
-
-	@Override
-	public World createWorld(String arg0, Environment arg1) {
-		throw new UnsupportedOperationException("This method is not implemented in this test stub.");
-	}
-
-	@Override
-	public World createWorld(String arg0, Environment arg1, long arg2) {
-		throw new UnsupportedOperationException("This method is not implemented in this test stub.");
-	}
-
-	@Override
-	public World createWorld(String arg0, Environment arg1, ChunkGenerator arg2) {
-		throw new UnsupportedOperationException("This method is not implemented in this test stub.");
-	}
-
-	@Override
-	public World createWorld(String arg0, Environment arg1, long arg2,
-			ChunkGenerator arg3) {
 		throw new UnsupportedOperationException("This method is not implemented in this test stub.");
 	}
 
@@ -361,5 +344,65 @@ public class TestServer implements Server {
 
 	@Override
 	public void sendPluginMessage(Plugin arg0, String arg1, byte[] arg2) {}
+
+	@Override
+	public void clearRecipes() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Inventory createInventory(InventoryHolder arg0, InventoryType arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Inventory createInventory(InventoryHolder arg0, int arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Inventory createInventory(InventoryHolder arg0, int arg1, String arg2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HelpMap getHelpMap() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Recipe> getRecipesFor(ItemStack arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getTicksPerAnimalSpawns() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getTicksPerMonsterSpawns() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Iterator<Recipe> recipeIterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void resetRecipes() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
