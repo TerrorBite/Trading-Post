@@ -44,6 +44,7 @@ public class CommandProcessor {
 		BROWSE,
 		CHECK,
 		SHOW,
+		WITHDRAW,
 		DEBUG // TODO: Don't leave debug command in.
 		//TODO: Add full range of commands
 	}
@@ -102,6 +103,8 @@ public class CommandProcessor {
 			return cmdCheck(p, cmdargs);
 		case SHOW:
 			return cmdShow(p, cmdargs);
+		case WITHDRAW:
+			return cmdWithdraw(p, cmdargs);
 		case DEBUG:
 			return cmdDebug(p, cmdargs);
 		default:
@@ -112,6 +115,30 @@ public class CommandProcessor {
 		
 	}
 	
+	private boolean cmdWithdraw(Player p, String[] cmdargs) {
+		int tradeId= 0;
+		GenericTrade trade = null;
+		if (cmdargs.length != 1) return false;
+		try {
+			tradeId = Integer.parseInt(cmdargs[0]);
+			trade = manager.getTrade(tradeId);
+		} catch (NumberFormatException e) {
+			p.sendMessage(String.format("\"%s\" is not a valid trade ID!", cmdargs[0]));
+			return true;
+		} catch (TradeNotFoundException e) {
+			p.sendMessage(String.format("There is no trade with ID %d", tradeId));
+			return true;
+		}
+		if (trade.getOwner() != p){
+			p.sendMessage("Cannot withdraw a trade you do not own");
+			return true;
+		}
+		if (!manager.withdrawTrade(p, trade)) {
+			p.sendMessage(String.format("Trade %d has already been withdrawn!", tradeId));
+		}
+		return true;
+	}
+
 	private boolean cmdCheck(Player p, String[] cmdargs) {
 		List<GenericTrade> pTrades = manager.getPlayerTrades(p);
 		for(GenericTrade tr: pTrades) {

@@ -255,12 +255,13 @@ public class TradeManager implements Listener {
 	 * Withdraws a trade, returning the items held to their owner.
 	 * @param p The player withdrawing a trade.
 	 * @param tradeId The ID of the trade they are withdrawing.
-	 * @return True if successful.ID.
+	 * @return True if successful. False if trade has already been withdrawn.
 	 */
 	public boolean withdrawTrade(OfflinePlayer p, GenericTrade trade) {
 		if(p != trade.getOwner()) {
 			throw new SecurityException("This user does not own the trade.");
 		}
+		if(trade.getStatus() == TradeStatus.withdrawn) return false;
 		trade.markWithdrawn();
 		returnItems(trade);
 		
@@ -277,7 +278,7 @@ public class TradeManager implements Listener {
 				}
 			}
 		}
-		return false;
+		return true;
 	}
 	
 	/**
