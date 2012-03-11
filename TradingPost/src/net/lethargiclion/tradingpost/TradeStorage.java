@@ -111,6 +111,26 @@ public class TradeStorage implements ConfigurationSerializable {
 		return playerTrades;
 	}
 	
+	List<GenericTrade> getTradesByPage(int page, int amountPerPage) {
+		if(page < 0 || amountPerPage <= 0) {
+			throw new IllegalArgumentException();
+		}
+		
+		List<GenericTrade> reverseTrades = new ArrayList<GenericTrade>();
+		
+		reverseTrades.addAll(trades.values());
+		
+		Collections.reverse(reverseTrades);
+		
+		int from = page*amountPerPage;
+		int to = from + amountPerPage;
+		
+		if(from >= reverseTrades.size()) return new ArrayList<GenericTrade>();
+		if(to > reverseTrades.size()) to = reverseTrades.size();
+		
+		return reverseTrades.subList(from, to);
+	}
+	
 	void addTrade(GenericTrade tr) {
 		this.trades.put(tr.getId(), tr);
 	}

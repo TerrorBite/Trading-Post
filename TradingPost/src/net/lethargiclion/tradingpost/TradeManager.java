@@ -396,6 +396,10 @@ public class TradeManager implements Listener {
 		return storage.getPlayerTrades(p);
 	}
 	
+	public List<GenericTrade> getPage(int page) {
+		return storage.getTradesByPage(page-1, 6);
+	}
+	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		// Don't bother checking if this event is cancelled. Technically this is a chat event.

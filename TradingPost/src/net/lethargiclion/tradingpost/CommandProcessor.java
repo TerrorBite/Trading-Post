@@ -232,7 +232,6 @@ public class CommandProcessor {
 	}
 
 	private boolean cmdBrowse(Player p, String[] cmdargs) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -305,7 +304,7 @@ public class CommandProcessor {
 	}
 
 	/**
-	 * Provides help on a 
+	 * Provides help on a particular command.
 	 * @param p
 	 * @param args
 	 * @return
