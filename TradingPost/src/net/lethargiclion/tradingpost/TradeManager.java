@@ -100,20 +100,33 @@ public class TradeManager implements Listener {
 	private void loadStorage() {
 		if(tradeStorageFile == null) {
 			tradeStorageFile = new File(plugin.getDataFolder(), "storage.yml");
+			if(tradeStorageFile.exists()) {
+				try {
+					tradeStorageConfig = YamlConfiguration.loadConfiguration(tradeStorageFile);
+				} catch (Exception e) {
+					TradingPost.log.log(Level.WARNING, "Internal error occurred while loading storage.yml, falling back to defaults", e);
+				    // Get default persistence file from the jar.
+				    InputStream defaultStorageStream = plugin.getResource("storage.yml");
+				    if (defaultStorageStream != null) {
+				    	// Set default values (e.g. empty storage) if no storage exists yet.
+				    	tradeStorageConfig = YamlConfiguration.loadConfiguration(defaultStorageStream);
+				    } else {
+				    	tradeStorageConfig = new YamlConfiguration();
+				    }
+				}
+			}
+			else {
+				TradingPost.log.info("[TradingPost] No storage file exists, creating a new one.");
+				// Get default persistence file from the jar.
+			    InputStream defaultStorageStream = plugin.getResource("storage.yml");
+			    if (defaultStorageStream != null) {
+			    	// Set default values (e.g. empty storage) if no storage exists yet.
+			    	tradeStorageConfig = YamlConfiguration.loadConfiguration(defaultStorageStream);
+			    } else {
+			    	tradeStorageConfig = new YamlConfiguration();
+			    }
+			}
 		}
-		try {
-			tradeStorageConfig = YamlConfiguration.loadConfiguration(tradeStorageFile);
-		} catch (Exception e) {
-			TradingPost.log.log(Level.WARNING, "Internal error occurred while loading storage.yml, falling back to defaults", e);
-			tradeStorageConfig = new YamlConfiguration();
-		}
-		
-	    // Get default persistence file from the jar.
-	    InputStream defaultStorageStream = plugin.getResource("storage.yml");
-	    if (defaultStorageStream != null) {
-	    	// Set default values (e.g. empty storage) if no storage exists yet.
-	    	tradeStorageConfig.setDefaults(YamlConfiguration.loadConfiguration(defaultStorageStream));
-	    }
 	}
 	
 	/**

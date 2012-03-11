@@ -25,10 +25,6 @@ import org.bukkit.configuration.serialization.ConfigurationSerialization;
  */
 public class TradeStorage implements ConfigurationSerializable {
 	
-	// Debug values
-	static int instances = 0;
-	int myinstance = 0;
-	
 	// Data structures
 	private int currentId;
 	private Map<Integer, GenericTrade> trades;
@@ -42,15 +38,9 @@ public class TradeStorage implements ConfigurationSerializable {
 	
 	@SuppressWarnings("unchecked")
 	public TradeStorage(Map<String, Object> serialData) {
-		// DEBUG: Count how many instances of us are created.
-		myinstance = ++instances;
-		// DEBUG: logging
-		TradingPost.log.info(String.format("[DEBUG] TradeStorage instance %d", myinstance));
 		currentId = serialData.containsKey("currentId")?
 				(Integer)serialData.get("currentId"):0;
 		
-		// DEBUG: logging
-		TradingPost.log.info(String.format("[DEBUG] Instance %d got currentId=%d", myinstance, currentId));
 
 		// Initialize our list of trades.
 		
@@ -68,7 +58,6 @@ public class TradeStorage implements ConfigurationSerializable {
 		}
 		// If that didn't go well, make an empty list
 		if(trades == null) tradelist = new ArrayList<GenericTrade>();
-		TradingPost.log.info(String.format("Instance %d has %d new trades", myinstance, trades.size()));
 		
 		Iterator<GenericTrade> i = tradelist.iterator();
 		while(i.hasNext()) {
@@ -90,7 +79,6 @@ public class TradeStorage implements ConfigurationSerializable {
 		}
 		// If that didn't go well, make an empty list
 		if(deliveries == null) deliveries = new ArrayList<QueuedItemDelivery>();
-		TradingPost.log.info(String.format("Instance %d has %d new deliveries", myinstance, deliveries.size()));
 	}
 	
 	/**

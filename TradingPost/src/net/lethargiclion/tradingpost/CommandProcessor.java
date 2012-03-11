@@ -80,8 +80,7 @@ public class CommandProcessor {
 		if(!(sender instanceof Player)) {
 			// Then we were probably called via console or Rcon
 			sender.sendMessage("You can only run TradingPost commands as a player.");
-			log.warning("Attempted to use TradingPost command from console.");
-			return false;
+			return true;
 		}
 		
 		// Typecast the CommandSender
@@ -301,7 +300,7 @@ public class CommandProcessor {
 	private boolean cmdCommands(Player p) {
 		p.sendMessage("Available TradingPost commands are:");
 		// Compile and return command list directly from our enum
-		p.sendMessage(StringUtils.join(TPCommand.values(), ", "));
+		p.sendMessage(StringUtils.join(TPCommand.values(), ", ").toLowerCase());
 		return true;
 	}
 
