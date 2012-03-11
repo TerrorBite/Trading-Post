@@ -343,11 +343,21 @@ public class CommandProcessor {
 			break;
 		case DELIVER:
 			usage = "deliver";
-			info = "Causes TradingPost to attempt redelivery of any waiting items.";
+			info = "Attempts to redeliver any waiting items to you.";
+			break;
 		case DEBUG:
 			// TODO: Don't leave this in.
 			usage = "debug <feature>";
 			info = "Debugging command for developer use.";
+			break;
+		case SELL:
+			usage = "sell";
+			info = "Posts the stack of items you are holding as a sale.";
+			break;
+		case SHOW:
+			usage = "show <id>";
+			info = "Shows details about a trade or bid.";
+			break;
 		default:
 			usage = cmd.name();
 			info = "Sorry, there is no help available for this command yet.";
