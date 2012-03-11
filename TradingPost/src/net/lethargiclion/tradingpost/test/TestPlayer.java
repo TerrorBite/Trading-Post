@@ -21,6 +21,7 @@ import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
@@ -1106,6 +1107,13 @@ public class TestPlayer implements Player {
 
 	@Override
 	public <T> void playEffect(Location arg0, Effect arg1, T arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void abandonConversation(Conversation arg0,
+			ConversationAbandonedEvent arg1) {
 		// TODO Auto-generated method stub
 		
 	}

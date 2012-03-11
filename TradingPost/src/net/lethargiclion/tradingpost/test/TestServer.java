@@ -405,4 +405,16 @@ public class TestServer implements Server {
 		
 	}
 
+	@Override
+	public boolean getGenerateStructures() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getWorldType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
