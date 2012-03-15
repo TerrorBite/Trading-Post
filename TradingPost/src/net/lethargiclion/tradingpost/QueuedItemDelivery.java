@@ -42,6 +42,38 @@ public class QueuedItemDelivery implements ConfigurationSerializable {
 		NO_ITEMS
 	}
 	
+	/**
+	 * Enum for the reason for receiving items.
+	 * @author trainmeditations
+	 *
+	 */
+	public enum DeliveryReason {
+		/**
+		 * Trade Accepted
+		 */
+		TRADE_ACCEPTED("You have received items from a successful trade. ID: %d"),
+		/**
+		 * Trade Reject
+		 */
+		TRADE_REJECTED("Trade %d was rejected. Your items have been returned."),
+		/**
+		 * Trade Withdrawn
+		 */
+		TRADE_WITHDRAWN("You withdrew trade %d. Your items have been returned."),
+		/**
+		 * Other
+		 */
+		OTHER("Items delivered for trade %d with no reason.");
+		
+		private String reason;
+		DeliveryReason(String reason){
+			this.reason = reason;
+		}
+		public String getMessage(int tradeId) {
+			return String.format(reason, tradeId);
+		}
+	}
+	
 	ItemStack[] items;
 	OfflinePlayer target;
 	

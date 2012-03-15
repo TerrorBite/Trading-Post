@@ -141,13 +141,17 @@ public class CommandProcessor {
 
 	private boolean cmdCheck(Player p, String[] cmdargs) {
 		List<GenericTrade> pTrades = manager.getPlayerTrades(p);
+		if (pTrades.size() == 0) {
+			p.sendMessage("You do not have any current trades.");
+			return true;
+		}
 		for(GenericTrade tr: pTrades) {
 			// Only display open trades
 			if(tr.getStatus() != TradeStatus.open) continue;
 			
 			displayItem(p, tr);
 		}
-		return false;
+		return true;
 	}
 	
 	private void displayItem(Player p, GenericTrade tr) {
