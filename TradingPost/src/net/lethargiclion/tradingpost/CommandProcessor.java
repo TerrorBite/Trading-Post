@@ -248,6 +248,7 @@ public class CommandProcessor {
 						ItemStack item = bid.getItems().toArray(new ItemStack[tr.getItems().size()])[0];
 						output.add(String.format("Bid #%d: %s offered %s",
 								bidId,
+								bid.getOwner().getName(),
 								(bid.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items"
 						));
 					} catch(TradeNotFoundException ex) {
@@ -265,21 +266,38 @@ public class CommandProcessor {
 			return true;
 		}
 		
+		for(String line: output) {
+			p.sendMessage(line);
+		}
+		
 		return true;
 	}
 
 	private boolean cmdBrowse(Player p, String[] cmdargs) {
 		List<GenericTrade> tradePage = null;
-		int pageNum= 1;
-		if (cmdargs.length != 1) return false;
-		try {
-			pageNum = Integer.parseInt(cmdargs[0]);
-		} catch (NumberFormatException e) {
-			p.sendMessage(String.format("\"%s\" is not a valid page number!", cmdargs[0]));
+		int pageNum = 1; // Default to page 1 if no args were given
+		
+		if (cmdargs.length == 1) {
+			try {
+				pageNum = Integer.parseInt(cmdargs[0]);
+			} catch (NumberFormatException e) {
+				p.sendMessage(String.format("\"%s\" is not a valid page number!", cmdargs[0]));
+				return true;
+			}
+		}
+		else if(cmdargs.length > 1) {
+			p.sendMessage("Please give only one page number, e.g. /tr browse 1");
 			return true;
 		}
 		
+		if(pageNum < 1) {
+			p.sendMessage("Invalid page. Page numbers start at 1.");
+			return true;
+		}
 		tradePage = manager.getPage(pageNum);
+		if(tradePage.size() == 0) {
+			p.sendMessage( pageNum==1?"There are currently no trades.":"There are no trades on this page.");
+		}
 		for(GenericTrade tr: tradePage) {
 			displayItem(p, tr);
 		}
