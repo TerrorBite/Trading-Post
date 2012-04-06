@@ -41,6 +41,7 @@ public class CommandProcessor {
 		COMMANDS,
 		DELIVER,
 		SELL,
+		ADD,
 		BID,
 		BROWSE,
 		CHECK,
@@ -98,6 +99,8 @@ public class CommandProcessor {
 			return cmdDeliver(p);
 		case SELL:
 			return cmdSell(p);
+		case ADD:
+			return cmdAdd(p, cmdargs);
 		case BID:
 			return cmdBid(p, cmdargs);
 		case BROWSE:
@@ -118,6 +121,46 @@ public class CommandProcessor {
 		
 	}
 	
+	private boolean cmdAdd(Player p, String[] cmdargs) {
+		// Check that player gave a parameter
+		if(cmdargs.length == 0) {
+			p.sendMessage("You need to give the ID of a trade to add items to.");
+			return true;
+		}
+		
+		// Verify parameter
+		int tradeId = 0; GenericTrade trade;
+		try {
+			tradeId = Integer.parseInt(cmdargs[0]);
+			trade = manager.getTrade(tradeId);
+		} catch (NumberFormatException e) {
+			p.sendMessage(String.format("\"%s\" is not a valid trade ID!", cmdargs[0]));
+			return true;
+		} catch (TradeNotFoundException e) {
+			p.sendMessage(String.format("There is no trade with ID %d", tradeId));
+			return true;
+		}
+		
+		// Get the player's held item stack
+		ItemStack items = p.getItemInHand();
+		if(items.getType() == Material.AIR) {
+			p.sendMessage("Your hand is empty. Nothing to add.");
+			return true;
+		}
+		
+		// Set player's hand to empty
+		p.setItemInHand(new ItemStack(Material.AIR));
+		
+		// Add items to the trade
+		// TODO: Create an item add method on GenericTrade
+		trade.items.add(items);
+		
+		// Inform the user of success
+		p.sendMessage(String.format("You added %d %s to trade %d.", items.getAmount(), items.getType().toString(), trade.getId()));
+		
+		return true;
+	}
+
 	private boolean cmdBid(Player p, String[] cmdargs) {
 		// Check that player gave a parameter
 		if(cmdargs.length == 0) {
