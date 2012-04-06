@@ -43,6 +43,7 @@ public class CommandProcessor {
 		SELL,
 		ADD,
 		BID,
+		ACCEPT,
 		BROWSE,
 		CHECK,
 		SHOW,
@@ -103,6 +104,8 @@ public class CommandProcessor {
 			return cmdAdd(p, cmdargs);
 		case BID:
 			return cmdBid(p, cmdargs);
+		case ACCEPT:
+			return cmdAccept(p, cmdargs);
 		case BROWSE:
 			return cmdBrowse(p, cmdargs);
 		case CHECK:
@@ -121,6 +124,50 @@ public class CommandProcessor {
 		
 	}
 	
+	private boolean cmdAccept(Player p, String[] cmdargs) {
+		// Check that player gave a parameter
+		if(cmdargs.length == 0) {
+			p.sendMessage("You need to give the ID of a bid to accept.");
+			return true;
+		}
+		
+		// Verify parameter
+		int tradeId = 0; GenericTrade trade;
+		try {
+			tradeId = Integer.parseInt(cmdargs[0]);
+			trade = manager.getTrade(tradeId);
+		} catch (NumberFormatException e) {
+			p.sendMessage(String.format("\"%s\" is not a valid trade ID!", cmdargs[0]));
+			return true;
+		} catch (TradeNotFoundException e) {
+			p.sendMessage(String.format("There is no trade with ID %d", tradeId));
+			return true;
+		}
+		
+		if(!(trade instanceof GenericBid)) {
+			p.sendMessage("You can only accept bids.");
+			return true;
+		}
+		
+		GenericBid bid = (GenericBid)trade;
+		
+		try {
+			if(manager.acceptBid(p, bid)) {
+				p.sendMessage(String.format("You have accepted bid %d on your trade.", tradeId));
+				return true;
+			} else {
+				p.sendMessage("An unknown error occurred.");
+				return true;
+			}
+		} catch (TradeNotFoundException e) {
+			p.sendMessage(String.format("There is no trade with ID %d", tradeId));
+			return true;
+		} catch (SecurityException e) {
+			p.sendMessage(String.format("This bid was not made on one of your trades!", tradeId));
+			return true;
+		}
+	}
+
 	private boolean cmdAdd(Player p, String[] cmdargs) {
 		// Check that player gave a parameter
 		if(cmdargs.length == 0) {

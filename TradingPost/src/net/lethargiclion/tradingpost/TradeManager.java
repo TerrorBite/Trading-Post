@@ -208,13 +208,14 @@ public class TradeManager implements Listener {
 	}
 	
 	/**
-	 * Accepts a bid.
+	 * Accepts a bid on a trade offer, including performing the exchange and delivery of
+	 * items, and rejecting all other (non-accepted) bids on the offer.
 	 * @param p The player who is accepting the bid.
 	 * @param bidId The bid that they are accepting.
 	 * @return true if successful.
 	 * @throws TradeNotFoundException if there is no {@link ItemBid} with that ID.
 	 */
-	public boolean acceptBid(OfflinePlayer p, GenericBid winningBid) throws TradeNotFoundException {
+	public boolean acceptBid(OfflinePlayer p, GenericBid winningBid) throws TradeNotFoundException, java.lang.SecurityException {
 		if(winningBid.getStatus() != TradeStatus.open) {
 			throw new IllegalStateException("Only bids in an open state can be accepted.");
 		}
