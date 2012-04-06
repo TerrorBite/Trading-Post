@@ -1118,4 +1118,22 @@ public class TestPlayer implements Player {
 		
 	}
 
+	@Override
+	public boolean isFlying() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setFlying(boolean arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isBlocking() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

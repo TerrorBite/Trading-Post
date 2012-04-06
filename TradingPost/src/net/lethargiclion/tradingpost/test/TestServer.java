@@ -417,4 +417,10 @@ public class TestServer implements Server {
 		return null;
 	}
 
+	@Override
+	public long getConnectionThrottle() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
