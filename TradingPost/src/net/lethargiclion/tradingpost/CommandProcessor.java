@@ -41,6 +41,7 @@ public class CommandProcessor {
 		COMMANDS,
 		DELIVER,
 		SELL,
+		BID,
 		BROWSE,
 		CHECK,
 		SHOW,
@@ -97,6 +98,8 @@ public class CommandProcessor {
 			return cmdDeliver(p);
 		case SELL:
 			return cmdSell(p);
+		case BID:
+			return cmdBid(p, cmdargs);
 		case BROWSE:
 			return cmdBrowse(p, cmdargs);
 		case CHECK:
@@ -115,6 +118,57 @@ public class CommandProcessor {
 		
 	}
 	
+	private boolean cmdBid(Player p, String[] cmdargs) {
+		// Check that player gave a parameter
+		if(cmdargs.length == 0) {
+			p.sendMessage("You need to give the ID of a trade to bid on.");
+			return true;
+		}
+		
+		// Verify parameter
+		int tradeId = 0; GenericTrade trade;
+		try {
+			tradeId = Integer.parseInt(cmdargs[0]);
+			trade = manager.getTrade(tradeId);
+		} catch (NumberFormatException e) {
+			p.sendMessage(String.format("\"%s\" is not a valid trade ID!", cmdargs[0]));
+			return true;
+		} catch (TradeNotFoundException e) {
+			p.sendMessage(String.format("There is no trade with ID %d", tradeId));
+			return true;
+		}
+		
+		if(!(trade instanceof GenericOffer)) {
+			p.sendMessage("You cannot bid on that type of trade.");
+			return true;
+		}
+		
+		GenericOffer offer = (GenericOffer)trade;
+		
+		// Get the player's held item stack
+		ItemStack items = p.getItemInHand();
+		if(items.getType() == Material.AIR) {
+			p.sendMessage("Your hand is empty. Nothing to bid with.");
+			return true;
+		}
+		
+		// Set player's hand to empty
+		p.setItemInHand(new ItemStack(Material.AIR));
+		
+		// makeBid expects a List, so create a single-element ArrayList
+		List<ItemStack> itemList = new ArrayList<ItemStack>();
+		itemList.add(items);
+		
+		// Create the bid
+		tradeId = manager.makeBid(p.getPlayer(), itemList, offer);
+		
+		// Inform the user of success
+		p.sendMessage(String.format("Bid number %d has been created.", tradeId));
+		p.sendMessage(String.format("You bid %d %s on offer %d.", items.getAmount(), items.getType().toString(), offer.getId()));
+		
+		return true;
+	}
+
 	private boolean cmdWithdraw(Player p, String[] cmdargs) {
 		int tradeId= 0;
 		GenericTrade trade = null;
