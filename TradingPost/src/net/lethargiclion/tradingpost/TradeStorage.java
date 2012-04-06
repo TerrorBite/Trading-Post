@@ -56,13 +56,14 @@ public class TradeStorage implements ConfigurationSerializable {
 			TradingPost.log.log(Level.SEVERE,
 					"Unable to deserialize: Invalid trade data.", ex);
 		}
-		// If that didn't go well, make an empty list
-		if(trades == null) tradelist = new ArrayList<GenericTrade>();
-		
-		Iterator<GenericTrade> i = tradelist.iterator();
-		while(i.hasNext()) {
-			GenericTrade next = i.next();
-			trades.put(next.getId(), next);
+		// If that didn't go well, leave list empty
+		if(tradelist != null) {
+			Iterator<GenericTrade> i = tradelist.iterator();
+
+			while(i.hasNext()) {
+				GenericTrade next = i.next();
+				trades.put(next.getId(), next);
+			}
 		}
 		
 		// Initialize our list of pending deliveries.

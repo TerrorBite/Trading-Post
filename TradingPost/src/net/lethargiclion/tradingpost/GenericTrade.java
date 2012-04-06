@@ -66,36 +66,44 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 		}
 		
 		// Get ID number of this trade.
-		try {
-			this.id = (Integer)serialData.get("id");
-		} catch(ClassCastException ex) {
-			throw new InstantiationException("Cannot deserialize: \"id\" is not an Integer.");
-		}
+		if(serialData.containsKey("id")) {
+			try {
+				this.id = (Integer)serialData.get("id");
+			} catch(ClassCastException ex) {
+				throw new InstantiationException("Cannot deserialize: \"id\" is not an Integer.");
+			}
+		} else throw new InstantiationException("No id was found in serialized data!");
 		
 		// Get status of this trade.
-		try {
-			this.status = TradeStatus.valueOf((String)serialData.get("status"));
-		} catch(ClassCastException ex) {
-			throw new InstantiationException("Cannot deserialize: \"status\" is not a String.");
-		}
+		if(serialData.containsKey("status")) {
+			try {
+				this.status = TradeStatus.valueOf((String)serialData.get("status"));
+			} catch(ClassCastException ex) {
+				throw new InstantiationException("Cannot deserialize: \"status\" is not a String.");
+			}
+		} else this.status = TradeStatus.open;
 		
 		// Get timestamp of this trade.
-		try {
-			this.timestamp = (Date)serialData.get("timestamp");
-		} catch(ClassCastException ex) {
-			throw new InstantiationException("Cannot deserialize: \"timestamp\" is not a Date.");
-		}
+		if(serialData.containsKey("timestamp")) {
+			try {
+				this.timestamp = (Date)serialData.get("timestamp");
+			} catch(ClassCastException ex) {
+				throw new InstantiationException("Cannot deserialize: \"timestamp\" is not a Date.");
+			}
+		} else this.timestamp = new Date();
 		
 		/* Get list of items held by this trade.
 		 * Bukkit's parser deserializes the itemlist for us, but we need to
 		 * check if we are being given a valid collection of ItemStacks.
 		 */
 		Collection<?> itemlist = null;
-		try {
-			itemlist = (Collection<?>)serialData.get("items");
-		} catch(ClassCastException ex) {
-			throw new InstantiationException("Cannot deserialize: \"items\" is not a Collection.");
-		}
+		if(serialData.containsKey("items")) {
+			try {
+				itemlist = (Collection<?>)serialData.get("items");
+			} catch(ClassCastException ex) {
+				throw new InstantiationException("Cannot deserialize: \"items\" is not a Collection.");
+			}
+		} else itemlist = new ArrayList<ItemStack>();
 		
 		// Check type of each element.
 		this.items = new ArrayList<ItemStack>();

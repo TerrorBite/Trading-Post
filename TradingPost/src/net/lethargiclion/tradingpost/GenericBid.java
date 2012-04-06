@@ -22,7 +22,13 @@ public abstract class GenericBid extends GenericTrade {
 	
 	GenericBid(Map<String, Object> serialData) throws InstantiationException {
 		super(serialData);
-		parentId = (Integer)serialData.get("parent");
+		if(serialData.containsKey("parent")) {
+			try {
+				parentId = (Integer)serialData.get("parent");
+			} catch(ClassCastException ex) {
+				throw new InstantiationException("Cannot deserialize: \"parent\" is not an Integer.");
+			}
+		} else parentId = 0;
 	}
 	
 	public void markAccepted() {
