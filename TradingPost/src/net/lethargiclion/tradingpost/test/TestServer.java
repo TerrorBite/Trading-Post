@@ -423,4 +423,22 @@ public class TestServer implements Server {
 		return 0;
 	}
 
+	@Override
+	public int getAnimalSpawnLimit() {
+		// TODO Auto-generated method stub
+		return 20; //changed
+	}
+
+	@Override
+	public int getMonsterSpawnLimit() {
+		// TODO Auto-generated method stub
+		return 200; //changed
+	}
+
+	@Override
+	public int getWaterAnimalSpawnLimit() {
+		// TODO Auto-generated method stub
+		return 20; //changed
+	}
+
 }
