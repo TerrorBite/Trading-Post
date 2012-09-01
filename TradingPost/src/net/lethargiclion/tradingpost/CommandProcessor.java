@@ -203,7 +203,7 @@ public class CommandProcessor {
 		trade.items.add(items);
 		
 		// Inform the user of success
-		p.sendMessage(String.format("You added %d %s to trade %d.", items.getAmount(), items.getType().toString(), trade.getId()));
+		p.sendMessage(String.format("You added %d %s to your trade %d.", items.getAmount(), items.getType().toString(), trade.getId()));
 		
 		return true;
 	}
@@ -254,7 +254,7 @@ public class CommandProcessor {
 		
 		// Inform the user of success
 		p.sendMessage(String.format("Bid number %d has been created.", tradeId));
-		p.sendMessage(String.format("You bid %d %s on offer %d.", items.getAmount(), items.getType().toString(), offer.getId()));
+		p.sendMessage(String.format("You bid %d %s on %s's offer %d.", items.getAmount(), items.getType().toString(), offer.getOwner().getName(), offer.getId()));
 		
 		return true;
 	}
@@ -526,8 +526,9 @@ public class CommandProcessor {
 	private boolean cmdHelp(Player p, String[] args) {
 		// No command supplied by the user?
 		if(args.length == 0) {
-			p.sendMessage("For help on a specific command, type /tr help <command>");
-			p.sendMessage("To get a list of commands, type /tr commands");
+			p.sendMessage("Trading Post is an auction-like system that lets you trade items with other players.");
+			p.sendMessage("- To get a list of commands, type /tr commands");
+			p.sendMessage("- For help on a specific command, type /tr help <command>");
 			return true;
 		}
 		

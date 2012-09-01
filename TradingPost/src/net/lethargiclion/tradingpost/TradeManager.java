@@ -367,6 +367,7 @@ public class TradeManager implements Listener {
 		if(p.isOnline() && !forceDelay) {
 			// Try and deliver the items now
 			Map<Integer, ItemStack> undelivered = p.getPlayer().getInventory().addItem(collection.toArray(new ItemStack[collection.size()]));
+			p.getPlayer().sendMessage("[TradingPost] You have received items!");
 			
 			// If all items were delivered, return true
 			if(undelivered.isEmpty()) {
