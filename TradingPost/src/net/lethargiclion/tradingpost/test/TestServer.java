@@ -427,15 +427,21 @@ public class TestServer implements Server {
 	@Override
 	public int getAnimalSpawnLimit() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 20;
 	}
 
 	@Override
 	public int getMonsterSpawnLimit() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 200;
 	}
 
+	@Override
+	public int getWaterAnimalSpawnLimit() {
+		// TODO Auto-generated method stub
+		return 20;
+	}
+	
 	@Override
 	public String getMotd() {
 		// TODO Auto-generated method stub
@@ -446,12 +452,6 @@ public class TestServer implements Server {
 	public WarningState getWarningState() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public int getWaterAnimalSpawnLimit() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	@Override
