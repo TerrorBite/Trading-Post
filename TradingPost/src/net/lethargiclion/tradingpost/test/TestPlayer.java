@@ -1136,4 +1136,46 @@ public class TestPlayer implements Player {
 		return false;
 	}
 
+	@Override
+	public int getExpToLevel() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean hasLineOfSight(Entity arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isValid() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public float getFlySpeed() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float getWalkSpeed() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setFlySpeed(float arg0) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWalkSpeed(float arg0) throws IllegalArgumentException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

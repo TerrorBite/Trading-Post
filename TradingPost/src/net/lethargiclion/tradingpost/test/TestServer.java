@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
+import org.bukkit.Warning.WarningState;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.CommandException;
@@ -109,7 +110,7 @@ public class TestServer implements Server {
 
 	@Override
 	public String getBukkitVersion() {
-		return "1.1 R4";
+		return "1.3.1 R2.0";
 	}
 
 	@Override
@@ -421,6 +422,42 @@ public class TestServer implements Server {
 	public long getConnectionThrottle() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public int getAnimalSpawnLimit() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getMonsterSpawnLimit() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getMotd() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public WarningState getWarningState() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getWaterAnimalSpawnLimit() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean isPrimaryThread() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
