@@ -262,7 +262,6 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 	 * The subclass should then add their own custom fields using {@code Map.put()}
 	 * before returning the updated {@code Map}.
 	 */
-	@Override
 	public Map<String, Object> serialize() {
 		// Create a new LinkedHashMap to store serialized data.
 		// LinkedHashMap maintains the order of its entries.

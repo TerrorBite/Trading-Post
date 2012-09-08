@@ -121,7 +121,6 @@ public class QueuedItemDelivery implements ConfigurationSerializable {
 		return DeliveryResult.SUCCESS;
 	}
 
-	@Override
 	public Map<String, Object> serialize() {
 		Map<String, Object> serial = new LinkedHashMap<String, Object>();
 		
