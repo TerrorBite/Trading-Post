@@ -485,6 +485,8 @@ public class CommandProcessor {
 		case NOT_ENOUGH_SPACE:
 			p.sendMessage("Your inventory has run out of space for new items.");
 			p.sendMessage("Clear some inventory slots, and then try again.");
+        default:
+            break;
 		}
 		return true;
 	}

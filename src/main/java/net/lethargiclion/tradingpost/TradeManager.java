@@ -12,9 +12,11 @@ import java.util.logging.Level;
 
 import net.lethargiclion.tradingpost.QueuedItemDelivery.DeliveryResult;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -220,7 +222,7 @@ public class TradeManager implements Listener {
 			throw new IllegalStateException("Only bids in an open state can be accepted.");
 		}
 		GenericOffer offer = getOffer(winningBid.getParentId());
-		if(offer.owner != p) {
+		if(!offer.owner.getName().equals(p.getName())) {
 			throw new java.lang.SecurityException("This user does not own the trade this bid was made on.");
 		}
 		
@@ -259,7 +261,7 @@ public class TradeManager implements Listener {
 	 * @return True if successful. False if trade has already been withdrawn.
 	 */
 	public boolean withdrawTrade(OfflinePlayer p, GenericTrade trade) {
-		if(p != trade.getOwner()) {
+		if(!trade.getOwner().getName().equals(p.getName())) {
 			throw new SecurityException("This user does not own the trade.");
 		}
 		if(trade.getStatus() == TradeStatus.withdrawn) return false;
@@ -367,7 +369,7 @@ public class TradeManager implements Listener {
 		if(p.isOnline() && !forceDelay) {
 			// Try and deliver the items now
 			Map<Integer, ItemStack> undelivered = p.getPlayer().getInventory().addItem(collection.toArray(new ItemStack[collection.size()]));
-			p.getPlayer().sendMessage("[TradingPost] You have received items!");
+			p.getPlayer().sendMessage("[TradingPost] You have received items!"); //TODO: Make this message more informative
 			
 			// If all items were delivered, return true
 			if(undelivered.isEmpty()) {
@@ -403,21 +405,35 @@ public class TradeManager implements Listener {
 		return storage.getTradesByPage(page-1, 6);
 	}
 	
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent e) {
-		// Don't bother checking if this event is cancelled. Technically this is a chat event.
-		DeliveryResult result = storage.deliverQueued(e.getPlayer());
-		switch(result) {
-		case SUCCESS:
-			e.getPlayer().sendMessage("[TradingPost] You have just recieved items from a trade!");
-			break;
-		case NOT_ENOUGH_SPACE:
-			e.getPlayer().sendMessage("[TradingPost] You have received items from a trade, but your inventory is full.");
-			e.getPlayer().sendMessage("Clear some inventory space, then type /tr deliver to receive the rest of your items.");
-			break;
-		default: // NO_ITEMS, or PLAYER_OFFLINE
-			break; // do nothing
-		}
-	}
+    private class ItemDeliveryTask implements Runnable {
+        Player p;
+        
+        public ItemDeliveryTask(Player player) {
+            // TODO Auto-generated constructor stub
+            this.p = player;
+        }
+
+        @Override
+        public void run() {
+            DeliveryResult result = storage.deliverQueued(p);
+            switch(result) {
+            case SUCCESS:
+                p.sendMessage("[TradingPost] You have just recieved items from a trade!");
+                break;
+            case NOT_ENOUGH_SPACE:
+                p.sendMessage("[TradingPost] You have received items from a trade, but your inventory is full.");
+                p.sendMessage("Clear some inventory space, then type /tr deliver to receive the rest of your items.");
+                break;
+            default: // NO_ITEMS, or PLAYER_OFFLINE
+                break; // do nothing
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        // Don't bother checking if this event is cancelled. Technically this is a chat event.
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, new ItemDeliveryTask(e.getPlayer()), 2000);
+    }
 
 }
