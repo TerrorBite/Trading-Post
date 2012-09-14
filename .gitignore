@@ -1,2 +1,4 @@
-TradingPost/target/*
-TradingPost/.*
+target/
+.classpath
+.project
+.settings/
