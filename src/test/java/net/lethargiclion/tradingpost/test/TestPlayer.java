@@ -52,6 +52,7 @@ import org.bukkit.util.Vector;
  * @author TerrorBite
  *
  */
+@org.junit.Ignore
 public class TestPlayer implements Player {
 	
 	private String name;

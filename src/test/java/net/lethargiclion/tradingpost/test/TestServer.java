@@ -49,6 +49,7 @@ import com.avaje.ebean.config.ServerConfig;
  * @author TerrorBite
  *
  */
+@org.junit.Ignore
 public class TestServer implements Server {
 
 	
