@@ -51,4 +51,24 @@
 	  <url>http://repo.bukkit.org/content/groups/public</url>
 	</repository>
   </repositories>
+  <url>http://dev.bukkit.org/server-mods/trading-post/</url>
+  <inceptionYear>2011-12-17</inceptionYear>
+  <organization>
+  	<name>Lethargic Lion</name>
+  	<url>http://lethargiclion.net/</url>
+  </organization>
+  <scm>
+  	<url>https://github.com/TerrorBite/Trading-Post/</url>
+  	<connection>scm:git:git://github.com/TerrorBite/Trading-Post.git</connection>
+  	<developerConnection>scm:git:ssh://git@github.com:TerrorBite/Trading-Post.git</developerConnection>
+  	<tag>HEAD</tag>
+  </scm>
+  <issueManagement>
+  	<system>GitHub</system>
+  	<url>https://github.com/TerrorBite/Trading-Post/issues</url>
+  </issueManagement>
+  <ciManagement>
+  	<system>Jenkins</system>
+  	<url>http://ci.lethargiclion.net/job/TradingPost/</url>
+  </ciManagement>
 </project>
