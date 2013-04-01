@@ -5,10 +5,12 @@ commands:
     tr:
         description: Allows you to use Trading Post features.
         permission: tradingpost.use
+        permission-message: You do not have permission to use Trading Post.
         usage: Your command was invalid. Try /tr help
     tradmin:
         description: Allows you to use administrative Trading Post features.
         permission: tradingpost.admin
+        permission-message: You do not have permission to use Trading Post admin commands.
         usage: /tradmin <command> ...
 permissions:
     tradingpost.use:
