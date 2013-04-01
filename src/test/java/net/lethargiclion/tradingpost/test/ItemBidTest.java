@@ -153,7 +153,7 @@ public class ItemBidTest {
 	public void accessors() {
 		assertEquals(ID, test.getId());
 		assertEquals(PARENT_ID, test.getParentId());
-		assertEquals(PLAYER, test.getOwner());
+		assertEquals(PLAYERNAME, test.getOwner());
 		assertTrue(test.getItems().containsAll(ITEMS));
 		assertEquals(TradeStatus.open, test.getStatus());
 		assertNotNull(test.getTimestamp());

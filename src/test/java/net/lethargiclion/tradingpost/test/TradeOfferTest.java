@@ -127,7 +127,7 @@ public class TradeOfferTest {
 	public void accessors() {
 		assertEquals(ID, test.getId());
 		assertEquals(-1, test.getAcceptedBidId());
-		assertEquals(PLAYER, test.getOwner());
+		assertEquals(PLAYERNAME, test.getOwner());
 		assertTrue(test.getItems().containsAll(ITEMS));
 		assertTrue(test.getBids().isEmpty());
 		assertEquals(TradeStatus.open, test.getStatus());
