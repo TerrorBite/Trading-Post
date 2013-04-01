@@ -254,7 +254,7 @@ public class CommandProcessor {
 		
 		// Inform the user of success
 		p.sendMessage(String.format("Bid number %d has been created.", tradeId));
-		p.sendMessage(String.format("You bid %d %s on %s's offer %d.", items.getAmount(), items.getType().toString(), offer.getOwner().getName(), offer.getId()));
+		p.sendMessage(String.format("You bid %d %s on %s's offer %d.", items.getAmount(), items.getType().toString(), offer.getOwner(), offer.getId()));
 		
 		return true;
 	}
@@ -273,7 +273,7 @@ public class CommandProcessor {
 			p.sendMessage(String.format("There is no trade with ID %d", tradeId));
 			return true;
 		}
-		if (trade.getOwner() != p){
+		if (trade.getOwner() != p.getName()){
 			p.sendMessage("Cannot withdraw a trade you do not own");
 			return true;
 		}
@@ -308,7 +308,7 @@ public class CommandProcessor {
 			p.sendMessage(String.format(
 					"#%d: %s offered %s (%d bids)",
 					tr.getId(),
-					tr.getOwner()==p?"You":tr.getOwner().getName(),
+					tr.getOwner()==p.getName()?"You":tr.getOwner(),
 					(tr.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items",
 					((GenericOffer)tr).bidCount()
 				));
@@ -318,14 +318,14 @@ public class CommandProcessor {
 		else if(tr instanceof GenericBid) {
 			String parentOwner = "Unknown";
 			try {
-				parentOwner = manager.getTrade(((GenericBid)tr).getParentId()).getOwner().getName();
+				parentOwner = manager.getTrade(((GenericBid)tr).getParentId()).getOwner();
 			} catch (TradeNotFoundException e) {
 				// What do?
 			}
 			p.sendMessage(String.format(
 					"#%d: %s bid %s on offer %d by %s",
 					tr.getId(),
-					tr.getOwner()==p?"You":tr.getOwner().getName(),
+					tr.getOwner()==p.getName()?"You":tr.getOwner(),
 					(tr.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items",
 					((GenericBid)tr).getParentId(),
 					parentOwner
@@ -354,7 +354,7 @@ public class CommandProcessor {
 					tr.getId(),
 					tr.getStatus().name().toLowerCase(),
 					tr instanceof GenericOffer?"offer":"bid",
-					tr.getOwner().getName(),
+					tr.getOwner(),
 					tr.getTimeString()
 			));
 			
@@ -364,7 +364,7 @@ public class CommandProcessor {
 					output.add(String.format("On %s offer #%d by %s",
 							parent.getStatus().name().toLowerCase(),
 							parent.getId(),
-							parent.getOwner().getName()
+							parent.getOwner()
 					));
 				} catch (TradeNotFoundException e) {
 					output.add(String.format("On invalid offer ID #%d", ((GenericBid)tr).getParentId()));
@@ -392,7 +392,7 @@ public class CommandProcessor {
 						ItemStack item = bid.getItems().toArray(new ItemStack[tr.getItems().size()])[0];
 						output.add(String.format("Bid #%d: %s offered %s",
 								bidId,
-								bid.getOwner().getName(),
+								bid.getOwner(),
 								(bid.getItems().size() == 1) ? String.format("%d %s", item.getAmount(), item.getType().toString()) : "multiple items"
 						));
 					} catch(TradeNotFoundException ex) {

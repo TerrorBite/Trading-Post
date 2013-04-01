@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -48,7 +47,7 @@ public abstract class GenericOffer extends GenericTrade {
 		}
 	}
 	
-	public GenericOffer(int id, OfflinePlayer p, Collection<ItemStack> items) {
+	public GenericOffer(int id, String p, Collection<ItemStack> items) {
 		super(id, p, items);
 		this.bids = new ArrayList<Integer>();
 	}

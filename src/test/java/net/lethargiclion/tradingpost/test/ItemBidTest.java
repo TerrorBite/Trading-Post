@@ -25,7 +25,8 @@ public class ItemBidTest {
 	
 	final static int ID = 55;
 	final static int PARENT_ID = 1;
-	final static TestPlayer PLAYER = new TestPlayer("Steve");
+	final static String PLAYERNAME = "Steve";
+	final static TestPlayer PLAYER = new TestPlayer(PLAYERNAME);
 	final static Date TIMESTAMP = generateTestDate();
 	final static List<ItemStack> ITEMS = generateTestItems();
 	
@@ -77,7 +78,7 @@ public class ItemBidTest {
 	public void createTestInstance() {
 		/*this.test = new ItemBid(PLAYER, ITEMS,
 				ID, TIMESTAMP, TradeStatus.open, PARENT_ID);*/
-		this.test = new ItemBid(ID, PLAYER, ITEMS, PARENT_ID);
+		this.test = new ItemBid(ID, PLAYERNAME, ITEMS, PARENT_ID);
 	}
 	
 	@Test

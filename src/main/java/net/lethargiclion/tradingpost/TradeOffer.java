@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public class TradeOffer extends GenericOffer {
 	
-	public TradeOffer(int id, OfflinePlayer p, Collection<ItemStack> items) {
+	public TradeOffer(int id, String p, Collection<ItemStack> items) {
 		super(id, p, items);
 	}
 	

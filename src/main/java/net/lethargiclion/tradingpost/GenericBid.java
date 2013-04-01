@@ -3,7 +3,6 @@ package net.lethargiclion.tradingpost;
 import java.util.Collection;
 import java.util.Map;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -15,7 +14,7 @@ public abstract class GenericBid extends GenericTrade {
 
 	private int parentId;
 
-	GenericBid(int id, OfflinePlayer p, Collection<ItemStack> items, int parentId) {
+	GenericBid(int id, String p, Collection<ItemStack> items, int parentId) {
 		super(id, p, items);
 		this.parentId = parentId;
 	}

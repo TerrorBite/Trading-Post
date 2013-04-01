@@ -197,13 +197,13 @@ public class TradeManager implements Listener {
 	 * @return the ID of the newly created trade.
 	 */
 	public int makeOffer(OfflinePlayer p, Collection<ItemStack> items) {
-		GenericOffer trade = new TradeOffer(storage.getNextId(), p, items);
+		GenericOffer trade = new TradeOffer(storage.getNextId(), p.getName(), items);
 		storage.addTrade(trade);
 		return trade.getId();
 	}
 	
 	public int makeBid(OfflinePlayer p, Collection<ItemStack> items, GenericOffer offer) {
-		GenericBid bid = new ItemBid(storage.getNextId(), p, items, offer.getId());
+		GenericBid bid = new ItemBid(storage.getNextId(), p.getName(), items, offer.getId());
 		offer.addBid(bid);
 		storage.addTrade(bid);
 		return bid.getId();
@@ -222,7 +222,7 @@ public class TradeManager implements Listener {
 			throw new IllegalStateException("Only bids in an open state can be accepted.");
 		}
 		GenericOffer offer = getOffer(winningBid.getParentId());
-		if(!offer.owner.getName().equals(p.getName())) {
+		if(!offer.owner.equalsIgnoreCase(p.getName())) {
 			throw new java.lang.SecurityException("This user does not own the trade this bid was made on.");
 		}
 		
@@ -261,7 +261,7 @@ public class TradeManager implements Listener {
 	 * @return True if successful. False if trade has already been withdrawn.
 	 */
 	public boolean withdrawTrade(OfflinePlayer p, GenericTrade trade) {
-		if(!trade.getOwner().getName().equals(p.getName())) {
+		if(!trade.getOwner().equalsIgnoreCase(p.getName())) {
 			throw new SecurityException("This user does not own the trade.");
 		}
 		if(trade.getStatus() == TradeStatus.withdrawn) return false;
@@ -329,7 +329,7 @@ public class TradeManager implements Listener {
 	 * @param trade The trade to process.
 	 */
 	private void returnItems(GenericTrade trade) {
-		deliverItems(trade.getOwner(), trade.getItems());
+		deliverItems(Bukkit.getOfflinePlayer(trade.getOwner()), trade.getItems());
 	}
 	
 	/**
@@ -353,8 +353,8 @@ public class TradeManager implements Listener {
 	 * @param second The other trade.
 	 */
 	private void exchangeItems(GenericTrade first, GenericTrade second) {
-		deliverItems(first.getOwner(), second.getItems());
-		deliverItems(second.getOwner(), first.getItems());
+		deliverItems(Bukkit.getOfflinePlayer(first.getOwner()), second.getItems());
+		deliverItems(Bukkit.getOfflinePlayer(second.getOwner()), first.getItems());
 	}
 	
 	/**

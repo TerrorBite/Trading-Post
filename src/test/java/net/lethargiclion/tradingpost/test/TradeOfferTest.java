@@ -29,7 +29,8 @@ public class TradeOfferTest {
 	
 	final static int ID = 42;
 	final static int ACCEPTED_BID_ID = 55;
-	final static TestPlayer PLAYER = new TestPlayer("Bob");
+	final static String PLAYERNAME = "Bob";
+	final static TestPlayer PLAYER = new TestPlayer(PLAYERNAME);
 	final static Date TIMESTAMP = generateTestDate();
 	final static List<ItemStack> ITEMS = generateTestItems();
 	final static Collection<Integer> BIDS = generateTestBidIDs();
@@ -85,12 +86,12 @@ public class TradeOfferTest {
 
 	@Before
 	public void setUp() throws Exception {
-		test = new TradeOffer(ID, PLAYER, ITEMS);
+		test = new TradeOffer(ID, PLAYERNAME, ITEMS);
 	}
 	
 	@Test
 	public void bidHandling() throws TradeNotFoundException {
-		GenericBid testBid = new ItemBid(ItemBidTest.ID, ItemBidTest.PLAYER, ItemBidTest.ITEMS, ID);
+		GenericBid testBid = new ItemBid(ItemBidTest.ID, ItemBidTest.PLAYERNAME, ItemBidTest.ITEMS, ID);
 		
 		// Check that our testBid is suitable for testing
 		assertEquals("Test bid's ID does not match the ID we gave it!", ItemBidTest.ID, testBid.getId());
@@ -112,7 +113,7 @@ public class TradeOfferTest {
 	
 	@Test(expected=TradeNotFoundException.class)
 	public void bidException() throws TradeNotFoundException {
-		GenericBid testBid = new ItemBid(ItemBidTest.ID, ItemBidTest.PLAYER, ItemBidTest.ITEMS, ID);
+		GenericBid testBid = new ItemBid(ItemBidTest.ID, ItemBidTest.PLAYERNAME, ItemBidTest.ITEMS, ID);
 		
 		test.addBid(testBid);
 		

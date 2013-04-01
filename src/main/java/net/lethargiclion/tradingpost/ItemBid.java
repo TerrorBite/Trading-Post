@@ -3,7 +3,6 @@ package net.lethargiclion.tradingpost;
 import java.util.Collection;
 import java.util.Map;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -21,7 +20,7 @@ public class ItemBid extends GenericBid {
 	 * @param items The items that they are bidding.
 	 * @param parent The ID of the trade being bid upon.
 	 */
-	public ItemBid(int id, OfflinePlayer owner, Collection<ItemStack> items, int parent) {
+	public ItemBid(int id, String owner, Collection<ItemStack> items, int parent) {
 		super(id, owner, items, parent);
 	}
 	

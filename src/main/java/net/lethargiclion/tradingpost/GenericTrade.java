@@ -10,8 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +24,7 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 
 	protected int id;
 	protected Collection<ItemStack> items;
-	protected OfflinePlayer owner;
+	protected String owner;
 	protected Date timestamp;
 	protected TradeStatus status;
 	
@@ -38,7 +36,7 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 	 * @param p The owner of this trade.
 	 * @param items The items contained by this trade.
 	 */
-	GenericTrade(int id, OfflinePlayer p, Collection<ItemStack> items) {
+	GenericTrade(int id, String p, Collection<ItemStack> items) {
 		this.id = id;
 		this.owner = p;
 		this.items = new ArrayList<ItemStack>();
@@ -60,7 +58,7 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 	GenericTrade(Map<String, Object> serialData) throws InstantiationException {
 		// Get owner of this trade.
 		try {
-			this.owner = Bukkit.getOfflinePlayer((String)serialData.get("owner"));
+			this.owner = (String)serialData.get("owner");
 		} catch(ClassCastException ex) {
 			throw new InstantiationException("Cannot deserialize: \"owner\" is not a String.");
 		}
@@ -139,7 +137,7 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 	 * Gets the OfflinePlayer who owns this trade.
 	 * @return
 	 */
-	public OfflinePlayer getOwner() {
+	public String getOwner() {
 		return owner;
 	}
 	
@@ -271,7 +269,7 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 		serial.put("id", this.id);
 		
 		// Store username of this trade's owner
-		serial.put("owner",	this.owner.getName());
+		serial.put("owner",	this.owner);
 
 		// Store trade status
 		serial.put("status", this.status.name());
@@ -322,7 +320,7 @@ public abstract class GenericTrade implements ConfigurationSerializable {
 	@Override
 	public int hashCode() {
 		int hash = this.timestamp.hashCode();
-		hash ^= this.owner.getName().hashCode();
+		hash ^= this.owner.hashCode();
 		hash ^= this.status.hashCode() + (this.id << 3);
 		Iterator<ItemStack> i = this.items.iterator();
 		while(i.hasNext()) {
