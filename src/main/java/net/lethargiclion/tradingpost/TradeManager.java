@@ -415,18 +415,8 @@ public class TradeManager implements Listener {
 
         @Override
         public void run() {
-            DeliveryResult result = storage.deliverQueued(p);
-            switch(result) {
-            case SUCCESS:
-                p.sendMessage("[TradingPost] You have just recieved items from a trade!");
-                break;
-            case NOT_ENOUGH_SPACE:
-                p.sendMessage("[TradingPost] You have received items from a trade, but your inventory is full.");
-                p.sendMessage("Clear some inventory space, then type /tr deliver to receive the rest of your items.");
-                break;
-            default: // NO_ITEMS, or PLAYER_OFFLINE
-                break; // do nothing
-            }
+            // Check if this player has any deliveries waiting
+            if(storage.canDeliver(p)==DeliveryResult.SUCCESS) p.sendMessage("[TradingPost] You have received items in a trade! Type /tr deliver to receive your items.");
         }
     }
     

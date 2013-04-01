@@ -173,15 +173,16 @@ public class TradeStorage implements ConfigurationSerializable {
 		if(!p.isOnline()) {
 			return DeliveryResult.PLAYER_OFFLINE;
 		}
-		DeliveryResult state = DeliveryResult.SUCCESS;
+		DeliveryResult state = DeliveryResult.NO_ITEMS;
 		Iterator<QueuedItemDelivery> i = deliveries.iterator();
-		// If there are no items to be delivered, return appropriate status
+		// If there are no items to be delivered at all, return appropriate status
 		if(!i.hasNext()) return DeliveryResult.NO_ITEMS;
 		while(i.hasNext()) {
 			QueuedItemDelivery delivery = i.next();
 			if(delivery.getTarget().equals(p)) {
 				// Attempt delivery of items.
 				if(delivery.deliver() == DeliveryResult.SUCCESS) {
+				    state = DeliveryResult.SUCCESS;
 					// Remove pending delivery if it was successful.
 					i.remove();
 				}
@@ -190,6 +191,31 @@ public class TradeStorage implements ConfigurationSerializable {
 		}
 		return state;
 	}
+	
+	/**
+     * Returns a status indicating whether items can be delivered to the given player.<br>
+     * Does not take into account whether or not the player has adequate inventory space.<br>
+     * <br>
+     * This is a method of {@link TradeStorage} instead of {@link TradeManager} because it
+     * requires access to an iterator over the deliveries collection. 
+     * @param p The {@link OfflinePlayer} whose queued items should be delivered.
+     * @returns A {@link DeliveryResult} containing the result of this delivery attempt.
+     */
+	public DeliveryResult canDeliver(OfflinePlayer p) {
+	    if(!p.isOnline()) {
+            return DeliveryResult.PLAYER_OFFLINE;
+        }
+        Iterator<QueuedItemDelivery> i = deliveries.iterator();
+        while(i.hasNext()) {
+            QueuedItemDelivery delivery = i.next();
+            if(delivery.getTarget().equals(p)) {
+                // Player has items waiting, so return success
+                return DeliveryResult.SUCCESS;
+            }
+        }
+        // If there are no items to be delivered for this player, return appropriate status
+        return DeliveryResult.NO_ITEMS;
+    }
 	
 	/**
 	 * Adds a {@link QueuedItemDelivery} to the list of queued deliveries.
