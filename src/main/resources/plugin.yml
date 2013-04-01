@@ -11,9 +11,9 @@ commands:
         permission: tradingpost.admin
         usage: /tradmin <command> ...
 permissions:
-	tradingpost.use:
-		description: Grants access to all general Trading Post user commands.
-		default: true
-	tradingpost.admin:
-		description: Grants access to all administrative Trading Post commands.
-		default: op
+    tradingpost.use:
+        description: Grants access to all general Trading Post user commands.
+        default: true
+    tradingpost.admin:
+        description: Grants access to all administrative Trading Post commands.
+        default: op
